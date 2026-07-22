@@ -21,8 +21,8 @@ docs/
 ├── architecture/    # NEXT_ARCHITECTURE.md, FLUTTER_ARCHITECTURE.md — source architecture per stack
 ├── specs/           # CODE-feature-name.spec.md
 ├── plans/           # CODE-feature-name-plan.md + plan.md (overall tracking)
-├── api/             # openapi.yaml + endpoints/*.md
-├── database/        # CODE-feature-name.db.md — schema/ERD/migration notes
+├── api/             # api.md (conventions/index) + endpoints/*.md (one file per endpoint group)
+├── database/        # db.md — single shared schema/ERD/migration notes doc for the whole project
 ├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype
 └── design/          # DESIGN.md + design-system.html
 tests/               # Unit / integration / e2e tests
@@ -33,7 +33,8 @@ tests/               # Unit / integration / e2e tests
 - `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ plan ↔ db ↔ branch ↔ commit.
 - Spec: `docs/specs/CODE-feature-name.spec.md`
 - Plan: `docs/plans/CODE-feature-name-plan.md`
-- DB notes: `docs/database/CODE-feature-name.db.md`
+- DB notes: shared `docs/database/db.md`, extended in place per feature (no per-`CODE` file)
+- API notes: shared `docs/api/api.md` (conventions/index) + `docs/api/endpoints/*.md` per endpoint group (not per-`CODE`)
 - Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.html`.
 
 ## Docs Instructions
@@ -41,6 +42,7 @@ tests/               # Unit / integration / e2e tests
 - Always define a spec using the `superpowers:brainstorming` skill before writing `docs/specs/*.spec.md`.
 - After a new spec is finalized, review all related specs to resolve conflicts (overlapping scope, contradictory behavior).
 - Every UI/HTML file (screen prototype) must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`.
+- Every screen prototype's matching `FEATURE-CODE-screen-name-00.html` is the visual source of truth for that screen — strictly follow it (layout, spacing, states), together with `docs/design/design-system.html` and `docs/design/DESIGN.md`, before writing new UI markup/styles.
 - Create/update the corresponding entry in `docs/plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
 
 ## Define Plan Instructions
@@ -55,6 +57,7 @@ tests/               # Unit / integration / e2e tests
 
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:executing-plans` skill (or `superpowers:subagent-driven-development` for independent tasks).
+- Any UI implementation must strictly match the corresponding `docs/screens/FEATURE-CODE-screen-name-00.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first.
 - Always check off the checkbox in the plan file (`docs/plans/CODE-feature-name-plan.md`) right after finishing each step.
 - Update `docs/plans/plan.md` after implementation is done.
 
