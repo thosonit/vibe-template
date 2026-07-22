@@ -1,48 +1,68 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Overview
 
-## Repository status
+- Goal: starter template for "vibe coding" — fast, iterative development in conversation with an AI assistant instead of heavy upfront design docs (see `README.md`).
+- Multi-stack template: the actual source architecture is defined per sub-project under `docs/architecture/`:
+  - `docs/architecture/NEXT_ARCHITECTURE.md` — Next.js (App Router, Server Components by default, Prisma, feature-first).
+  - `docs/architecture/FLUTTER_ARCHITECTURE.md` — Flutter app.
+  - When starting a sub-project, read the matching architecture file before writing new code; don't assume a stack that hasn't been confirmed.
+- Development lifecycle (spec → db → api → screen spec → screen UI → plan → implement → test) follows the order described in `README.md`.
 
-This repository is a bare starter template for vibe-coding projects. It currently contains only `README.md`, `CLAUDE.md`, `.claude/`, and a scaffolded `docs/` tree — no source code, build tooling, or tests exist yet. `src/` and `tests/` are proposed structure, not yet created.
+## Repository Structure
 
-Before assuming any command or convention, check whether the relevant files/tooling actually exist in the repo.
+```text
+.claude/             # Assistant config: skills, agents, hooks, settings
+src/                 # Application source code (per the architecture in docs/architecture/)
+docs/
+├── architecture/    # NEXT_ARCHITECTURE.md, FLUTTER_ARCHITECTURE.md — source architecture per stack
+├── specs/           # CODE-feature-name.spec.md
+├── plans/           # CODE-feature-name-plan.md + plan.md (overall tracking)
+├── api/             # openapi.yaml + endpoints/*.md
+├── database/        # CODE-feature-name.db.md — schema/ERD/migration notes
+├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype
+└── design/          # DESIGN.md + design-system.html
+tests/               # Unit / integration / e2e tests
+```
 
-## Docs structure
+## Naming Convention
 
-`docs/` is organized by document type, numbered for chronological cross-referencing:
+- `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ plan ↔ db ↔ branch ↔ commit.
+- Spec: `docs/specs/CODE-feature-name.spec.md`
+- Plan: `docs/plans/CODE-feature-name-plan.md`
+- DB notes: `docs/database/CODE-feature-name.db.md`
+- Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.html`.
 
-- `docs/specs/` — feature requirements / PRDs, always named `CODE-feature-name.spec.md`, where `CODE` is a short uppercase identifier (e.g. `AUTH-user-auth.spec.md`)
-- `docs/plans/` — implementation plans, one per spec (`CODE-feature-name-plan.md`)
-- `docs/api/` — API contracts (`openapi.yaml` + `endpoints/*.md`)
-- `docs/screens/` — screen specs, flat, named `FEATURE-CODE-screen-name-00.screen.md` (e.g. `AUTH-login-01.screen.md`), where `FEATURE-CODE` matches the related spec's code; each screen's `mockup.png` stays in its own `docs/screens/<screen-name>/` folder, linked from the spec. Every `.screen.md` is always paired with a same-named `.html` prototype next to it (e.g. `AUTH-login-01.html`).
-- `docs/adr/` — Architecture Decision Records (optional)
+## Docs Instructions
 
-Use the same `CODE` prefix across a spec, its plan, and its feature branch/PR (e.g. spec `AUTH-user-auth.spec.md` ↔ plan `AUTH-user-auth-plan.md` ↔ branch `feature/AUTH-user-auth`).
+- Always define a spec using the `superpowers:brainstorming` skill before writing `docs/specs/*.spec.md`.
+- After a new spec is finalized, review all related specs to resolve conflicts (overlapping scope, contradictory behavior).
+- Every UI/HTML file (screen prototype) must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`.
+- Create/update the corresponding entry in `docs/plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
 
-## Purpose
+## Define Plan Instructions
 
-Per `README.md`, this template exists to support a "vibe coding" workflow: fast, iterative development in conversation with an AI assistant rather than heavy upfront design docs. The lifecycle is:
+- Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
+- Use the `superpowers:writing-plans` skill (or the `planner` agent) to create the plan.
+- Create `docs/plans/CODE-feature-name-plan.md`.
+- Update the checklist in `docs/plans/plan.md`.
+- Screens/UI in the plan must follow the screen spec (`docs/screens/`) and the design system (`docs/design/`).
 
-1. Prompt — describe the feature/fix in plain language, small scope
-2. Generate — draft code/tests/plan
-3. Review — check the diff matches intent
-4. Iterate — refine via conversation, not manual rewrites
-5. Verify — run tests/build/lint before moving on
-6. Commit — small, frequent commits
+## Implement Instructions
 
-When a real project is scaffolded from this template, update this file with actual build/lint/test commands and real architecture notes once they exist.
+- Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
+- Use the `superpowers:executing-plans` skill (or `superpowers:subagent-driven-development` for independent tasks).
+- Always check off the checkbox in the plan file (`docs/plans/CODE-feature-name-plan.md`) right after finishing each step.
+- Update `docs/plans/plan.md` after implementation is done.
 
-## Git Workflow
+## Test Instructions
 
-This project uses **GitFlow**:
+- Use the `superpowers:test-driven-development` / `tdd-workflow` skill: write tests before implementing.
+- Before reporting completion, run `superpowers:verification-before-completion` to actually verify build/lint/test pass.
+- Tests live in `tests/` (unit/integration/e2e), minimum 80% coverage per `common/testing.md`.
 
-- `main` — production-ready code only
-- `develop` — integration branch; all feature work merges here first
-- `feature/*` — branch from `develop`, merge back into `develop`
-- `release/*` — branch from `develop`, merge into both `main` and `develop`
-- `hotfix/*` — branch from `main`, merge into both `main` and `develop`
+## Rules
 
-Use Conventional Commits for messages (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`, `revert`), e.g. `feat(auth): add OAuth2 login`.
-
-See the `git-workflow` skill (`.claude/skills/git-workflow/SKILL.md`) for full branching, commit, merge/rebase, conflict-resolution, and release conventions.
+- Use the `git-conventions` skill for git operations — GitFlow branch model + Conventional Commits.
+- Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` layout without confirming first.
+- Never read or print production secrets/config files (`.env`, `.env.production`, credentials, API keys, etc.). If a task seems to need one, ask the user instead of reading it directly.

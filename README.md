@@ -12,7 +12,7 @@ vibe-template/
 │   ├── specs/         # Feature requirements / PRDs (CODE-feature-name.spec.md, CODE = uppercase)
 │   ├── plans/         # Implementation plans (one per spec)
 │   ├── api/           # API contracts (openapi.yaml + per-endpoint notes)
-│   ├── db/            # Database schema / ERD / migration notes (one per feature)
+│   ├── database/      # Database schema / ERD / migration notes (one per feature)
 │   ├── screens/        # Screen specs (flat, FEATURE-CODE-screen-name-00.screen.md) + per-screen mockup folder
 │   ├── design/        # Design tokens and visual system (DESIGN.md + design-system.html)
 │   └── adr/           # Architecture Decision Records (optional)
@@ -29,7 +29,7 @@ Adapt folder names to your stack (e.g. `src/` → `app/` for web frameworks), bu
 - Screen specs live flat directly under `docs/screens/`, named `FEATURE-CODE-screen-name-00.screen.md` (e.g. `AUTH-login-01.screen.md`), where `FEATURE-CODE` matches the related spec's code. Each screen's mockup stays in its own `docs/screens/<screen-name>/mockup.png`, linked from the spec.
 - Every `.screen.md` is always paired with an HTML prototype of the same name (e.g. `AUTH-login-01.screen.md` + `AUTH-login-01.html`), sitting next to it in `docs/screens/`.
 - `docs/api/openapi.yaml` is the source of truth for REST contracts; `docs/api/endpoints/*.md` holds prose notes per endpoint group.
-- `docs/db/CODE-feature-name.db.md` holds the schema/ERD/migration notes for a feature; the API contract should be written against this, not the other way around.
+- `docs/database/CODE-feature-name.db.md` holds the schema/ERD/migration notes for a feature; the API contract should be written against this, not the other way around.
 - `docs/design/DESIGN.md` captures the shared visual language (tokens, typography, spacing, components), and `docs/design/design-system.html` is a static reference page for that system.
 - `docs/adr/CODE-feature-name.adr.md` records source-code structure (which modules/folders under `src/` the feature touches) and key technical decisions (e.g. "login uses JWT, not sessions") — one ADR per feature, not one giant project-wide doc.
 
@@ -62,7 +62,7 @@ Do these once when the project starts (or whenever a project-wide technical/proc
 
 - **Goal** — If the feature touches persisted data, define/update the tables, columns, relations, and indexes before designing the API around them.
 - **Skill used** — `database-reviewer` agent
-- **Output** — `docs/db/CODE-feature-name.db.md` (schema/ERD, migration notes)
+- **Output** — `docs/database/CODE-feature-name.db.md` (schema/ERD, migration notes)
 - **Example prompt** — `"Based on AUTH-password-reset.spec.md, design the schema for storing reset tokens with expiry."`
 
 ### 3. Define API Contract
