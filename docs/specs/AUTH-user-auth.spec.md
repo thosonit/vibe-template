@@ -84,9 +84,3 @@ Email/password login for the web app, using JWT access tokens with rotating refr
 
 - Exact rate-limit thresholds/windows for the API-layer limiter (to be defined during implementation planning or ops review).
 - Multi-device/session management (viewing/revoking individual active sessions) is not covered here — candidate for a future spec if needed.
-
-## Related Docs
-
-- Plan: [AUTH-user-auth-plan.md](../plans/AUTH-user-auth-plan.md)
-- Database schema: `docs/db/AUTH-user-auth.db.md` (to be created — next lifecycle step)
-- API contract: `docs/api/openapi.yaml` + `docs/api/endpoints/*.md` (to be created)

@@ -4,9 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository status
 
-This repository is a bare starter template for vibe-coding projects. It currently contains only `README.md` — no source code, build tooling, or tests exist yet. The folders described in the README (`.claude/`, `src/`, `docs/`, `tests/`) are proposed structure, not yet created.
+This repository is a bare starter template for vibe-coding projects. It currently contains only `README.md`, `CLAUDE.md`, `.claude/`, and a scaffolded `docs/` tree — no source code, build tooling, or tests exist yet. `src/` and `tests/` are proposed structure, not yet created.
 
 Before assuming any command or convention, check whether the relevant files/tooling actually exist in the repo.
+
+## Docs structure
+
+`docs/` is organized by document type, numbered for chronological cross-referencing:
+
+- `docs/specs/` — feature requirements / PRDs, always named `CODE-feature-name.spec.md`, where `CODE` is a short uppercase identifier (e.g. `AUTH-user-auth.spec.md`)
+- `docs/plans/` — implementation plans, one per spec (`CODE-feature-name-plan.md`)
+- `docs/api/` — API contracts (`openapi.yaml` + `endpoints/*.md`)
+- `docs/screens/` — screen specs, flat, named `FEATURE-CODE-screen-name-00.screen.md` (e.g. `AUTH-login-01.screen.md`), where `FEATURE-CODE` matches the related spec's code; each screen's `mockup.png` stays in its own `docs/screens/<screen-name>/` folder, linked from the spec. Every `.screen.md` is always paired with a same-named `.html` prototype next to it (e.g. `AUTH-login-01.html`).
+- `docs/adr/` — Architecture Decision Records (optional)
+
+Use the same `CODE` prefix across a spec, its plan, and its feature branch/PR (e.g. spec `AUTH-user-auth.spec.md` ↔ plan `AUTH-user-auth-plan.md` ↔ branch `feature/AUTH-user-auth`).
 
 ## Purpose
 
