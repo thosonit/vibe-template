@@ -3,17 +3,20 @@
 ## Project Overview
 
 - Goal: starter template for "vibe coding" — fast, iterative development in conversation with an AI assistant instead of heavy upfront design docs (see `README.md`).
-- Multi-stack template: the actual source architecture is defined per sub-project under `docs/architecture/`:
+- Multi-stack template: each sub-project lives in its own `src/<project-name>/` folder, with its source architecture defined under `docs/architecture/`:
   - `docs/architecture/NEXT_ARCHITECTURE.md` — Next.js (App Router, Server Components by default, Prisma, feature-first).
   - `docs/architecture/FLUTTER_ARCHITECTURE.md` — Flutter app.
   - When starting a sub-project, read the matching architecture file before writing new code; don't assume a stack that hasn't been confirmed.
+  - Never place source code directly under `src/` — always nest it under `src/<project-name>/` (e.g. `src/web/`, `src/mobile/`), so multiple stacks can coexist in the same repo.
 - Development lifecycle (spec → db → api → screen spec → screen UI → plan → implement → test) follows the order described in `README.md`.
 
 ## Repository Structure
 
 ```text
 .claude/             # Assistant config: skills, agents, hooks, settings
-src/                 # Application source code (per the architecture in docs/architecture/)
+src/
+└── <project-name>/  # One folder per sub-project (e.g. web/, mobile/), per the
+                      # architecture in docs/architecture/ — never source directly under src/
 docs/
 ├── architecture/    # NEXT_ARCHITECTURE.md, FLUTTER_ARCHITECTURE.md — source architecture per stack
 ├── specs/           # CODE-feature-name.spec.md
