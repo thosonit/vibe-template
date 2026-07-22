@@ -128,7 +128,6 @@ Every new idea/feature gets one top-level entry in `docs/plans/plan.md`. Inside 
 
 Check a box only once that step's output has been produced and confirmed.
 
-
 ## Claude Settings (`.claude/settings.local.json`)
 
 Local permission overrides for this project — grants the assistant unattended access to the core tools it needs for the lifecycle above.
@@ -137,14 +136,14 @@ Local permission overrides for this project — grants the assistant unattended 
 {
   "permissions": {
     "allow": [
-      "Bash(*)",  // run shell commands (tests, build, lint, git) without per-call prompts
-      "Read(*)",  // read any file in the repo
+      "Bash(*)", // run shell commands (tests, build, lint, git) without per-call prompts
+      "Read(*)", // read any file in the repo
       "Write(*)", // create new files (specs, plans, screens, etc.)
-      "Edit(*)",  // modify existing files
-      "Glob(*)",  // pattern-match files by path
-      "Grep(*)"   // search file contents
+      "Edit(*)", // modify existing files
+      "Glob(*)", // pattern-match files by path
+      "Grep(*)", // search file contents
     ],
-    "deny": []    // no explicit denials — tighten this list if the project needs stricter guardrails
-  }
+    "deny": [], // no explicit denials — tighten this list if the project needs stricter guardrails
+  },
 }
 ```

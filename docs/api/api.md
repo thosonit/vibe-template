@@ -2,9 +2,9 @@
 
 ## List of APIs
 
-| Group | Doc |
-|---|---|
-| Auth | [endpoints/auth.md](endpoints/auth.md) |
+| Group | Doc                                    |
+| ----- | -------------------------------------- |
+| Auth  | [endpoints/auth.md](endpoints/auth.md) |
 
 ## Convention
 

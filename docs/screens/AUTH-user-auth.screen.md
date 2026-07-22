@@ -29,39 +29,47 @@ See [AUTH-user-auth.html](./AUTH-user-auth.html) for the visual reference — th
 
 ## 5. Elements
 
-| Element | Type | Notes |
-|---|---|---|
-| Email | text input | required, standard email format validation client-side |
-| Password | password input (show/hide toggle) | required |
-| Remember me | checkbox | maps to `remember_me` flag on `POST /auth/login` |
-| Log in | primary button | disabled while request in flight; shows loading state |
-| Forgot password? | link | routes to password-reset flow (out of scope, separate spec) |
-| Inline error banner | text/alert region | renders the error states below; announced to screen readers via `aria-live="polite"` |
+| Element             | Type                              | Notes                                                                                |
+| ------------------- | --------------------------------- | ------------------------------------------------------------------------------------ |
+| Email               | text input                        | required, standard email format validation client-side                               |
+| Password            | password input (show/hide toggle) | required                                                                             |
+| Remember me         | checkbox                          | maps to `remember_me` flag on `POST /auth/login`                                     |
+| Log in              | primary button                    | disabled while request in flight; shows loading state                                |
+| Forgot password?    | link                              | routes to password-reset flow (out of scope, separate spec)                          |
+| Inline error banner | text/alert region                 | renders the error states below; announced to screen readers via `aria-live="polite"` |
 
 ## 6. States
 
 ### Default
+
 Empty form, Log in button enabled once both fields are non-empty and email is well-formed.
 
 ### Loading
+
 On submit: button shows spinner and is disabled; inputs are disabled to prevent duplicate submits.
 
 ### Success
+
 `POST /auth/login` returns `access_token`; refresh token cookie is set by the server. Redirect to the app's authenticated landing page. No confirmation screen — this state is transient.
 
 ### Error — invalid credentials
+
 Message: "Email or password is incorrect." Generic wording per spec — never indicates whether the email exists. Password field is cleared; email is retained. Focus moves to the error banner.
 
 ### Error — account locked
+
 Message: "Your account is temporarily locked. Try again in N minutes." `N` derived from server-provided unlock time. Log in button stays enabled (user can retry once the lock naturally expires; server will re-reject until then).
 
 ### Error — unverified email
+
 Message: "Please verify your email before logging in." Includes a link/action to resend verification (handled by the separate email-verification spec).
 
 ### Error — rate limited
+
 Message: generic "Too many attempts, please try again shortly." Triggered by the API-layer rate limiter, distinct from per-account lockout.
 
 ### Error — network/unknown
+
 Message: generic "Something went wrong. Please try again." Fallback for unexpected failures (timeout, 5xx).
 
 ## 7. Validation Rules (client-side)

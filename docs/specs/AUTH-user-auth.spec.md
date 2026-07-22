@@ -7,6 +7,7 @@ Email/password login for the web app, using JWT access tokens with rotating refr
 ## Scope
 
 **In scope:**
+
 - Login with email + password
 - Access/refresh token issuance (JWT access token, rotating refresh token)
 - Refresh token rotation with reuse detection
@@ -15,6 +16,7 @@ Email/password login for the web app, using JWT access tokens with rotating refr
 - "Remember me" (extended refresh token lifetime)
 
 **Out of scope (separate specs):**
+
 - Account registration
 - Password reset / forgot password
 - Email verification flow (this spec assumes an account's email is already verified as a precondition for login; the verification flow itself is defined elsewhere)

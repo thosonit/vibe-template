@@ -260,16 +260,16 @@ This design language is Corporate/Professional: light surfaces, generous whitesp
 
 ## Colors
 
-| Token | Value | Use |
-|---|---|---|
-| `primary` | `#003469` | Primary actions, interactive focus, selected states |
-| `primary-hover` / `primary-active` | derived from `primary` | Hover and active states for primary controls |
-| `accent` | `#F5A623` | Secondary highlights and supporting calls to action |
-| `success` / `warning` / `error` / `info` (+ `-bg`) | see token | Semantic status and feedback states |
-| `background` | `#F7F8FA` | Page and surface background |
-| `surface` | `#FFFFFF` | Cards, panels, modals, and controls |
-| `border` | `#E1E4E8` | Input, card, and table borders |
-| `text-primary` / `text-secondary` / `text-disabled` | see token | Typography hierarchy and text states |
+| Token                                               | Value                  | Use                                                 |
+| --------------------------------------------------- | ---------------------- | --------------------------------------------------- |
+| `primary`                                           | `#003469`              | Primary actions, interactive focus, selected states |
+| `primary-hover` / `primary-active`                  | derived from `primary` | Hover and active states for primary controls        |
+| `accent`                                            | `#F5A623`              | Secondary highlights and supporting calls to action |
+| `success` / `warning` / `error` / `info` (+ `-bg`)  | see token              | Semantic status and feedback states                 |
+| `background`                                        | `#F7F8FA`              | Page and surface background                         |
+| `surface`                                           | `#FFFFFF`              | Cards, panels, modals, and controls                 |
+| `border`                                            | `#E1E4E8`              | Input, card, and table borders                      |
+| `text-primary` / `text-secondary` / `text-disabled` | see token              | Typography hierarchy and text states                |
 
 Principle: navy is a reserved accent for key actions and selected states — avoid using it as the dominant page background or surface color to maintain a light, calm interface.
 
@@ -302,6 +302,7 @@ Modals and dialogs use a dark backdrop with `rgba(17, 24, 39, 0.45)` and no back
 Use **Lucide** (`lucide-react`) with outline style and `strokeWidth: 2`. Do not use emoji for functional icons. Use `currentColor` so icons inherit the contextual text color.
 
 Sizes:
+
 - `sm` (16px) for badges, inputs, and small indicators
 - `md` (20px) for buttons, navigation, and list actions
 - `lg` (24px) for empty states and larger UI elements
@@ -320,12 +321,14 @@ Refer to the front matter `components` section for token definitions. Core group
 `button-icon` is intended for icon-only secondary actions. It should remain visually lightweight, reveal a subtle background on hover, and always include a descriptive `title` or `aria-label`.
 
 Extended component groups:
+
 - Overlay & feedback: `modal`, `modal-backdrop`, `toast`, `tooltip`, `spinner`
 - Form controls: `dropdown-select`, `checkbox`, `radio`, `multiselect-chip`, `search-input`
 - Navigation: `sidebar`, `sidebar-item-active`, `tabs`, `segmented-control`, `pagination-item-active`, `filter-bar`
 - Data display: `stat-tile`, `progress-bar`, `avatar`, `empty-state`
 
 Semantic badge colors map to state meaning consistently across interfaces:
+
 - success states → `badge-success`
 - warning states → `badge-warning`
 - error states → `badge-error`
@@ -336,6 +339,7 @@ Status icons should follow semantic color usage: `check` for success, `x` for er
 ## Do's and Don'ts
 
 **Do:**
+
 - Use navy (`primary`) for one main action or selected state per screen to preserve visual priority.
 - Use whitespace and surface contrast (`background` vs `surface`) to establish hierarchy instead of heavy borders.
 - Keep semantic badge colors consistent across screens.
@@ -344,6 +348,7 @@ Status icons should follow semantic color usage: `check` for success, `x` for er
 - Use Lucide icons for functional interface elements.
 
 **Don't:**
+
 - Do not use navy as the primary page or content background. Keep it as an accent for buttons, selected states, and navigation highlights.
 - Do not introduce colors outside the defined palette without adding them as tokens first.
 - Do not deviate from the defined corner radius scale: `sm`, `md`, `lg`, and `full`.
