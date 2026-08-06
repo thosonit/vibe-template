@@ -17,22 +17,25 @@
 src/
 └── <project-name>/  # One folder per sub-project (e.g. web/, mobile/), per the
                       # architecture in docs/architecture/ — never source directly under src/
-docs/
+docs/                # Core reference documentation
 ├── architecture/    # NEXT_ARCHITECTURE.md, FLUTTER_ARCHITECTURE.md — source architecture per stack
-├── specs/           # CODE-feature-name.spec.md
-├── plans/           # CODE-feature-name-plan.md + plan.md (overall tracking)
+├── specs/           # CODE-feature-name.spec.md + spec.md (overview)
 ├── api/             # api.md (conventions/index) + endpoints/*.md (one file per endpoint group)
 ├── database/        # db.md — single shared schema/ERD/migration notes doc for the whole project
-├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype
+├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype + screen.md (overview)
 └── design/          # DESIGN.md + design-system.html
+plans/               # Implementation plans, separate from core docs
+├── plan.md          # Overall tracking (8-step lifecycle checklist per feature)
+├── working/         # YYYY-MM-DD-feature-name.md for plans not yet fully implemented/tested
+└── archive/         # YYYY-MM-DD-feature-name.md for plans that finished all 8 steps
 tests/               # Unit / integration / e2e tests
 ```
 
 ## Naming Convention
 
-- `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ plan ↔ db ↔ branch ↔ commit.
+- `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ db ↔ branch ↔ commit.
 - Spec: `docs/specs/CODE-feature-name.spec.md`
-- Plan: `docs/plans/CODE-feature-name-plan.md`
+- Plan: `plans/working/YYYY-MM-DD-feature-name.md` while in progress, moved to `plans/archive/YYYY-MM-DD-feature-name.md` once step 8 (Run Tests) is complete. Each update to a feature creates a new dated plan file rather than editing an old one — plan history stays linear.
 - DB notes: shared `docs/database/db.md`, extended in place per feature (no per-`CODE` file)
 - API notes: shared `docs/api/api.md` (conventions/index) + `docs/api/endpoints/*.md` per endpoint group (not per-`CODE`)
 - Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.html`.
@@ -43,14 +46,14 @@ tests/               # Unit / integration / e2e tests
 - After a new spec is finalized, review all related specs to resolve conflicts (overlapping scope, contradictory behavior).
 - Every UI/HTML file (screen prototype) must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`.
 - Every screen prototype's matching `FEATURE-CODE-screen-name-00.html` is the visual source of truth for that screen — strictly follow it (layout, spacing, states), together with `docs/design/design-system.html` and `docs/design/DESIGN.md`, before writing new UI markup/styles.
-- Create/update the corresponding entry in `docs/plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
+- Create/update the corresponding entry in `plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
 
 ## Define Plan Instructions
 
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:writing-plans` skill (or the `planner` agent) to create the plan.
-- Create `docs/plans/CODE-feature-name-plan.md`.
-- Update the checklist in `docs/plans/plan.md`.
+- Create `plans/working/YYYY-MM-DD-feature-name.md`.
+- Update the checklist in `plans/plan.md`.
 - Screens/UI in the plan must follow the screen spec (`docs/screens/`) and the design system (`docs/design/`).
 
 ## Implement Instructions
@@ -58,8 +61,9 @@ tests/               # Unit / integration / e2e tests
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:executing-plans` skill (or `superpowers:subagent-driven-development` for independent tasks).
 - Any UI implementation must strictly match the corresponding `docs/screens/FEATURE-CODE-screen-name-00.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first.
-- Always check off the checkbox in the plan file (`docs/plans/CODE-feature-name-plan.md`) right after finishing each step.
-- Update `docs/plans/plan.md` after implementation is done.
+- Always check off the checkbox in the plan file (`plans/working/YYYY-MM-DD-feature-name.md`) right after finishing each step.
+- Update `plans/plan.md` after implementation is done.
+- Once step 8 (Run Tests) is complete and passing, move the plan file from `plans/working/` to `plans/archive/`.
 
 ## Test Instructions
 
@@ -70,5 +74,5 @@ tests/               # Unit / integration / e2e tests
 ## Rules
 
 - Use the `git-conventions` skill for git operations — GitFlow branch model + Conventional Commits.
-- Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` layout without confirming first.
+- Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` or `plans/` layout without confirming first.
 - Never read or print production secrets/config files (`.env`, `.env.production`, credentials, API keys, etc.). If a task seems to need one, ask the user instead of reading it directly.

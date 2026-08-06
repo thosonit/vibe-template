@@ -8,14 +8,17 @@ A starter template for **vibe coding** projects — a workflow where you build s
 vibe-template/
 ├── .claude/          # Assistant config: skills, agents, hooks, settings
 ├── src/               # Application source code
-├── docs/              # Specs, plans, API contracts, screen docs
+├── docs/              # Core reference docs: specs, API contracts, screen docs
 │   ├── specs/         # Feature requirements / PRDs (CODE-feature-name.spec.md, CODE = uppercase)
-│   ├── plans/         # Implementation plans (one per spec)
 │   ├── api/           # API contracts (openapi.yaml + per-endpoint notes)
 │   ├── database/      # Database schema / ERD / migration notes (one per feature)
 │   ├── screens/        # Screen specs (flat, FEATURE-CODE-screen-name-00.screen.md) + per-screen mockup folder
 │   ├── design/        # Design tokens and visual system (DESIGN.md + design-system.html)
 │   └── adr/           # Architecture Decision Records (optional)
+├── plans/             # Implementation plans, separate from core docs
+│   ├── plan.md        # Overall tracking (8-step lifecycle checklist per feature)
+│   ├── working/        # YYYY-MM-DD-feature-name.md for plans not yet fully implemented/tested
+│   └── archive/        # YYYY-MM-DD-feature-name.md for plans that finished all 8 steps
 ├── tests/             # Unit / integration / e2e tests
 └── README.md
 ```
@@ -24,7 +27,8 @@ Adapt folder names to your stack (e.g. `src/` → `app/` for web frameworks), bu
 
 ### Docs Conventions
 
-- Specs always follow `CODE-feature-name.spec.md`, where `CODE` is a short uppercase identifier for the feature area (e.g. `AUTH-user-auth.spec.md`, `PAY-payment-flow.spec.md`). `CODE` cross-references specs ↔ plans ↔ branch ↔ PR.
+- Specs always follow `CODE-feature-name.spec.md`, where `CODE` is a short uppercase identifier for the feature area (e.g. `AUTH-user-auth.spec.md`, `PAY-payment-flow.spec.md`). `CODE` cross-references specs ↔ db ↔ branch ↔ PR.
+- Plans live under `plans/working/` or `plans/archive/`, named `YYYY-MM-DD-feature-name.md` — each update to a feature creates a new dated plan file instead of editing an old one, so plan history stays linear and traceable.
 - Branch/commit naming should reference the spec code, e.g. branch `feature/AUTH-user-auth`, commit `feat(auth): ...`.
 - Screen specs live flat directly under `docs/screens/`, named `FEATURE-CODE-screen-name-00.screen.md` (e.g. `AUTH-login-01.screen.md`), where `FEATURE-CODE` matches the related spec's code. Each screen's mockup stays in its own `docs/screens/<screen-name>/mockup.png`, linked from the spec.
 - Every `.screen.md` is always paired with an HTML prototype of the same name (e.g. `AUTH-login-01.screen.md` + `AUTH-login-01.html`), sitting next to it in `docs/screens/`.
@@ -90,7 +94,7 @@ Do these once when the project starts (or whenever a project-wide technical/proc
 
 - **Goal** — Break the spec (and API contract/screen specs) into concrete, ordered implementation steps with risks and dependencies called out.
 - **Skill used** — `superpowers:writing-plans` (or the `planner` agent)
-- **Output** — `docs/plans/CODE-feature-name-plan.md`
+- **Output** — `plans/working/YYYY-MM-DD-feature-name.md`
 - **Example prompt** — `"Write the implementation plan for AUTH-password-reset based on the spec, API contract, and screen specs."`
 
 ### 7. Implement Plan
@@ -98,20 +102,20 @@ Do these once when the project starts (or whenever a project-wide technical/proc
 - **Goal** — Execute the approved plan step by step, writing the actual code (and updating the plan/checkboxes as steps land).
 - **Skill used** — `superpowers:executing-plans` (or `superpowers:subagent-driven-development` for independent tasks in the same session)
 - **Output** — Working code on `feature/CODE-feature-name`, following GitFlow branch/commit conventions
-- **Example prompt** — `"Execute step 1 of the AUTH-password-reset-plan.md."`
+- **Example prompt** — `"Execute step 1 of plans/working/2026-08-06-password-reset.md."`
 
 ### 8. Run Tests
 
 - **Goal** — Verify correctness with unit/integration/E2E tests plus build/lint before committing.
 - **Skill used** — `superpowers:test-driven-development`, `tdd-workflow`, `superpowers:verification-before-completion`
-- **Output** — Passing test suite for `feature/CODE-feature-name`
+- **Output** — Passing test suite for `feature/CODE-feature-name`; once passing, move the plan file from `plans/working/` to `plans/archive/`
 - **Example prompt** — `"Run the full test suite for AUTH-password-reset and fix any failures."`
 
 Repeat the loop per feature. Favor short cycles over big up-front specs — let working code and feedback shape the next step.
 
-### Tracking Progress: `docs/plans/plan.md`
+### Tracking Progress: `plans/plan.md`
 
-Every new idea/feature gets one top-level entry in `docs/plans/plan.md`. Inside each entry, track lifecycle progress with checkboxes — one per step above:
+Every new idea/feature gets one top-level entry in `plans/plan.md`. Inside each entry, track lifecycle progress with checkboxes — one per step above:
 
 ```markdown
 ## AUTH-password-reset — Password reset via email

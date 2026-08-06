@@ -1,6 +1,8 @@
 # Plan Tracking
 
-## AUTH-user-auth — Email/password login with JWT + rotating refresh tokens
+## Working
+
+### AUTH-user-auth — [working/2026-08-06-user-auth.md](working/2026-08-06-user-auth.md)
 
 - [x] 1. Define Spec
 - [x] 2. Define Database Schema
@@ -10,3 +12,7 @@
 - [x] 6. Define Plan
 - [ ] 7. Implement Plan
 - [ ] 8. Run Tests
+
+## Archive
+
+<!-- e.g. - [archive/YYYY-MM-DD-feature-name.md](archive/YYYY-MM-DD-feature-name.md) -->
