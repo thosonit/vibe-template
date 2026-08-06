@@ -8,7 +8,6 @@
   - `docs/architecture/FLUTTER_ARCHITECTURE.md` — Flutter app.
   - When starting a sub-project, read the matching architecture file before writing new code; don't assume a stack that hasn't been confirmed.
   - Never place source code directly under `src/` — always nest it under `src/<project-name>/` (e.g. `src/web/`, `src/mobile/`), so multiple stacks can coexist in the same repo.
-- Development lifecycle (spec → db → api → screen spec → screen UI → plan → implement → test) follows the order described in `README.md`.
 
 ## Repository Structure
 
@@ -25,34 +24,38 @@ docs/                # Core reference documentation
 ├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype + screen.md (overview)
 └── design/          # DESIGN.md + design-system.html
 plans/               # Implementation plans, separate from core docs
-├── plan.md          # Overall tracking (8-step lifecycle checklist per feature)
-├── working/         # YYYY-MM-DD-feature-name.md for plans not yet fully implemented/tested
-└── archive/         # YYYY-MM-DD-feature-name.md for plans that finished all 8 steps
-tests/               # Unit / integration / e2e tests
+├── plan.md          # Overall tracking (8-step lifecycle checklist per task)
+├── working/         # YYYY-MM-DD-task-name.spec.md + YYYY-MM-DD-task-name.md pairs, not yet archived
+└── archive/         # Same pairs, moved here once Finish Development (step 8) is done
+tests/               # Unit / integration / e2e tests (not used by this project — see Test Instructions)
 ```
 
 ## Naming Convention
 
 - `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ db ↔ branch ↔ commit.
-- Spec: `docs/specs/CODE-feature-name.spec.md`
-- Plan: `plans/working/YYYY-MM-DD-feature-name.md` while in progress, moved to `plans/archive/YYYY-MM-DD-feature-name.md` once step 8 (Run Tests) is complete. Each update to a feature creates a new dated plan file rather than editing an old one — plan history stays linear.
+- Core spec (single source of truth for what a feature does): `docs/specs/CODE-feature-name.spec.md` — only ever created/updated during step 2 (Sync Core Docs), never written directly at the start of a task.
+- Task spec draft: `plans/working/YYYY-MM-DD-task-name.spec.md` — written in step 1 (Brainstorm) for every task, new feature or change alike.
+- Plan: `plans/working/YYYY-MM-DD-task-name.md`, same name/folder as its spec draft. Both move to `plans/archive/YYYY-MM-DD-task-name.{spec.md,md}` together, only once step 8 (Finish Development) runs. Each task creates a new dated pair rather than editing an old one — history stays linear.
 - DB notes: shared `docs/database/db.md`, extended in place per feature (no per-`CODE` file)
 - API notes: shared `docs/api/api.md` (conventions/index) + `docs/api/endpoints/*.md` per endpoint group (not per-`CODE`)
 - Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.html`.
 
 ## Docs Instructions
 
-- Always define a spec using the `superpowers:brainstorming` skill before writing `docs/specs/*.spec.md`.
-- After a new spec is finalized, review all related specs to resolve conflicts (overlapping scope, contradictory behavior).
+- Always brainstorm using the `superpowers:brainstorming` skill before writing a task spec — for every task, new feature or change to an existing one alike.
+- Write that task spec to `plans/working/YYYY-MM-DD-task-name.spec.md` (step 1, Brainstorm). Never write directly to `docs/specs/` at this stage — the core spec is only touched in step 2.
+- **Sync Core Docs gate (mandatory, no exceptions):** immediately after the task spec draft is written (step 2, before Define Plan starts), fully reconcile it into the corresponding core doc(s) under `docs/` (`specs/CODE-feature-name.spec.md`, plus `database/`, `api/`, `screens/` as applicable). Explicitly re-read the draft against the current core doc(s) and confirm every requirement/acceptance criterion is reflected before moving on to Define Plan — never defer this to the end of the task. Creating `docs/specs/CODE.spec.md` for the first time (new feature) and updating it in place (change) follow the exact same gate.
+- After a core spec is created/updated, review other related core specs to resolve conflicts (overlapping scope, contradictory behavior).
 - Every UI/HTML file (screen prototype) must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`.
 - Every screen prototype's matching `FEATURE-CODE-screen-name-00.html` is the visual source of truth for that screen — strictly follow it (layout, spacing, states), together with `docs/design/design-system.html` and `docs/design/DESIGN.md`, before writing new UI markup/styles.
+- Step 3 (Design UI) only runs when the task has UI; use the `frontend-design` skill to create/update the screen prototype.
 - Create/update the corresponding entry in `plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
 
 ## Define Plan Instructions
 
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:writing-plans` skill (or the `planner` agent) to create the plan.
-- Create `plans/working/YYYY-MM-DD-feature-name.md`.
+- Create `plans/working/YYYY-MM-DD-task-name.md`, alongside the task spec draft written in step 1, based on the core docs already synced in step 2 (`docs/specs/`, `docs/database/`, `docs/api/`, `docs/screens/`).
 - Update the checklist in `plans/plan.md`.
 - Screens/UI in the plan must follow the screen spec (`docs/screens/`) and the design system (`docs/design/`).
 
@@ -61,18 +64,25 @@ tests/               # Unit / integration / e2e tests
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:executing-plans` skill (or `superpowers:subagent-driven-development` for independent tasks).
 - Any UI implementation must strictly match the corresponding `docs/screens/FEATURE-CODE-screen-name-00.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first.
-- Always check off the checkbox in the plan file (`plans/working/YYYY-MM-DD-feature-name.md`) right after finishing each step.
+- Always check off the checkbox in the plan file (`plans/working/YYYY-MM-DD-task-name.md`) right after finishing each step.
 - Update `plans/plan.md` after implementation is done.
-- Once step 8 (Run Tests) is complete and passing, move the plan file from `plans/working/` to `plans/archive/`.
+- Implementation must match the core docs already synced in step 2 — if scope diverges during implementation, update the core docs and the task spec draft to match before moving to Code Review.
+
+## Code Review Instructions
+
+- Use the `superpowers:requesting-code-review` skill right after implementation, before Self-test.
+- Address CRITICAL and HIGH findings before moving on; MEDIUM/LOW are optional per `common/code-review.md`.
+- If review feedback changes scope, update the core docs and task spec draft to match before moving to Self-test.
 
 ## Test Instructions
 
-- Use the `superpowers:test-driven-development` / `tdd-workflow` skill: write tests before implementing.
-- Before reporting completion, run `superpowers:verification-before-completion` to actually verify build/lint/test pass.
-- Tests live in `tests/` (unit/integration/e2e), minimum 80% coverage per `common/testing.md`.
+- **Override notice:** this project overrides `~/.claude/rules/common/testing.md` and `~/.claude/rules/web/testing.md` — no unit tests, no e2e tests, no coverage requirement. This is a deliberate project-level decision, not an oversight.
+- Before reporting completion, run `superpowers:verification-before-completion` to verify build/lint/typecheck pass (whatever the sub-project has configured) — this is the only automated check.
+- After that passes, hand off to the user to manually run and test the feature (self-test). Wait for the user's explicit confirmation that it works before moving to Finish Development (step 8) — do not assume self-test passed.
 
 ## Rules
 
+- **Superpowers plugin required (mandatory, no exceptions):** before doing any work in this repo — brainstorming, syncing docs, planning, implementing, code review, or finishing development — confirm the Superpowers plugin is installed and its skills (`superpowers:*`) are available. If it is missing, stop and ask the user to install it first rather than proceeding with equivalent ad-hoc steps; this project's workflow (brainstorm → sync core docs → design UI → plan → implement → code review → self-test → finish development) is built directly on `superpowers:*` skills for every step except Self-test, and is not a substitute for having the plugin.
 - Use the `git-conventions` skill for git operations — GitFlow branch model + Conventional Commits.
 - Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` or `plans/` layout without confirming first.
 - Never read or print production secrets/config files (`.env`, `.env.production`, credentials, API keys, etc.). If a task seems to need one, ask the user instead of reading it directly.

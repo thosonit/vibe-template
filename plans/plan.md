@@ -4,14 +4,14 @@
 
 ### AUTH-user-auth — [working/2026-08-06-user-auth.md](working/2026-08-06-user-auth.md)
 
-- [x] 1. Define Spec
-- [x] 2. Define Database Schema
-- [x] 3. Define API Contract
-- [x] 4. Define Screen Spec
-- [x] 5. Define Screen UI
-- [x] 6. Define Plan
-- [ ] 7. Implement Plan
-- [ ] 8. Run Tests
+- [x] 1. Brainstorm
+- [x] 2. Sync Core Docs
+- [x] 3. Design UI
+- [x] 4. Define Plan
+- [ ] 5. Implement
+- [ ] 6. Code Review
+- [ ] 7. Self-test
+- [ ] 8. Finish Development
 
 ## Archive
 
