@@ -48,7 +48,7 @@ tests/               # Unit / integration / e2e tests (not used by this project 
 - After a core spec is created/updated, review other related core specs to resolve conflicts (overlapping scope, contradictory behavior).
 - Every UI/HTML file (screen prototype) must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`.
 - Every screen prototype's matching `FEATURE-CODE-screen-name-00.html` is the visual source of truth for that screen — strictly follow it (layout, spacing, states), together with `docs/design/design-system.html` and `docs/design/DESIGN.md`, before writing new UI markup/styles.
-- Step 3 (Design UI) only runs when the task has UI; use the `frontend-design` skill to create/update the screen prototype.
+- Step 3 (Design UI) is optional — only runs when the task has UI; use the `frontend-design` skill to create/update the screen prototype.
 - Create/update the corresponding entry in `plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
 
 ## Define Plan Instructions

@@ -59,13 +59,13 @@ Do these once when the project starts (or whenever a project-wide technical/proc
 Per feature/task, in order:
 
 1. **Brainstorm** — `superpowers:brainstorming`; output is the task spec draft `plans/working/YYYY-MM-DD-task-name.spec.md`
-2. **Sync Core Docs** — reconcile the task spec draft into `docs/specs/`, `docs/database/`, `docs/api/`, `docs/screens/` right away, before planning starts
-3. **Design UI** (only if the task has UI) — `frontend-design` skill; create/update `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.html` prototype, following `docs/design/DESIGN.md` and `design-system.html`
+2. **Sync Core Docs** (require) — reconcile the task spec draft into `docs/specs/`, `docs/database/`, `docs/api/`, `docs/screens/` right away, before planning starts
+3. **Design UI** (optional — only if the task has UI) — `frontend-design` skill; create/update `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.html` prototype, following `docs/design/DESIGN.md` and `design-system.html`
 4. **Define Plan** — `superpowers:writing-plans` (or `planner` agent), based on the core docs already synced in step 2
 5. **Implement** — `superpowers:executing-plans` (or `superpowers:subagent-driven-development`)
-6. **Code Review** — `superpowers:requesting-code-review`; address feedback before moving on
-7. **Self-test** — run build/lint/typecheck via `superpowers:verification-before-completion`, then the user manually tests the feature and confirms before moving on. No unit or e2e tests are written for this project.
-8. **Finish Development** — `superpowers:finishing-a-development-branch`; archive the plan pair to `plans/archive/` and wrap up the git branch
+6. **Code Review** (require) — `superpowers:requesting-code-review`; address feedback before moving on
+7. **Self-test** (require) — run build/lint/typecheck via `superpowers:verification-before-completion`, then the user manually tests the feature and confirms before moving on. No unit or e2e tests are written for this project.
+8. **Finish Development** (require) — `superpowers:finishing-a-development-branch`; archive the plan pair to `plans/archive/` and wrap up the git branch
 
 ## Claude Settings (`.claude/settings.local.json`)
 
