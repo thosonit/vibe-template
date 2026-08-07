@@ -14,11 +14,10 @@ vibe-template/
 │   ├── database/      # Database schema / ERD / migration notes (one per feature)
 │   ├── screens/        # Screen specs (flat, FEATURE-CODE-screen-name-00.screen.md) + per-screen mockup folder
 │   ├── design/        # Design tokens and visual system (DESIGN.md + design-system.html)
-│   └── adr/           # Architecture Decision Records (optional)
-├── plans/             # Implementation plans, separate from core docs
-│   ├── plan.md        # Overall tracking (5-step lifecycle checklist per task)
-│   ├── working/        # YYYY-MM-DD-task-name.spec.md + YYYY-MM-DD-task-name.md pairs, not yet synced to core docs
-│   └── archive/        # Same pairs, moved here once synced to core docs (see Docs Sync Rule)
+│   ├── adr/           # Architecture Decision Records (optional)
+│   └── superpowers/   # Per-task artifacts (superpowers plugin defaults), separate from core docs
+│       ├── specs/     # YYYY-MM-DD-task-name.spec.md — task spec draft, not yet synced to core docs
+│       └── plans/     # YYYY-MM-DD-task-name.md — implementation plan
 ├── tests/             # Unit / integration / e2e tests
 └── README.md
 ```
@@ -28,8 +27,8 @@ Adapt folder names to your stack (e.g. `src/` → `app/` for web frameworks), bu
 ### Docs Conventions
 
 - Specs always follow `CODE-feature-name.spec.md` under `docs/specs/` — this is the **core spec**, the single current source of truth for what a feature does. `CODE` is a short uppercase identifier for the feature area (e.g. `AUTH-user-auth.spec.md`, `PAY-payment-flow.spec.md`), cross-referencing specs ↔ db ↔ branch ↔ PR.
-- Every task — a brand-new feature or a change to one that already ships — starts with a **task spec draft**: `plans/working/YYYY-MM-DD-task-name.spec.md`. It never touches `docs/specs/` directly; it's folded into the core spec only after implementation and tests pass (see [Docs Sync Rule](#docs-sync-rule-mandatory)).
-- The implementation plan for that task lives next to its spec draft, same name, same folder: `plans/working/YYYY-MM-DD-task-name.md`. Each task creates a new dated pair instead of editing an old one, so history stays linear and traceable.
+- Every task — a brand-new feature or a change to one that already ships — starts with a **task spec draft**: `docs/superpowers/specs/YYYY-MM-DD-task-name.spec.md`. It never touches `docs/specs/` directly; it's folded into the core spec only after implementation and tests pass (see [Docs Sync Rule](#docs-sync-rule-mandatory)).
+- The implementation plan for that task lives at `docs/superpowers/plans/YYYY-MM-DD-task-name.md`, same task name as its spec draft. Each task creates a new dated file instead of editing an old one, so history stays linear and traceable. Files stay in place permanently — no working/archive move.
 - Branch/commit naming should reference the spec code, e.g. branch `feature/AUTH-user-auth`, commit `feat(auth): ...`.
 - Screen specs live flat directly under `docs/screens/`, named `FEATURE-CODE-screen-name-00.screen.md` (e.g. `AUTH-login-01.screen.md`), where `FEATURE-CODE` matches the related spec's code. Each screen's mockup stays in its own `docs/screens/<screen-name>/mockup.png`, linked from the spec.
 - Every `.screen.md` is always paired with an HTML prototype of the same name (e.g. `AUTH-login-01.screen.md` + `AUTH-login-01.html`), sitting next to it in `docs/screens/`.
@@ -58,14 +57,14 @@ Do these once when the project starts (or whenever a project-wide technical/proc
 
 Per feature/task, in order:
 
-1. **Brainstorm** — `superpowers:brainstorming`; output is the task spec draft `plans/working/YYYY-MM-DD-task-name.spec.md`
+1. **Brainstorm** — `superpowers:brainstorming`; output is the task spec draft `docs/superpowers/specs/YYYY-MM-DD-task-name.spec.md`
 2. **Sync Core Docs** (require) — reconcile the task spec draft into `docs/specs/`, `docs/database/`, `docs/api/`, `docs/screens/` right away, before planning starts
 3. **Design UI** (optional — only if the task has UI) — `frontend-design` skill; create/update `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.html` prototype, following `docs/design/DESIGN.md` and `design-system.html`
 4. **Define Plan** — `superpowers:writing-plans` (or `planner` agent), based on the core docs already synced in step 2
 5. **Implement** — `superpowers:executing-plans` (or `superpowers:subagent-driven-development`)
 6. **Code Review** (require) — `superpowers:requesting-code-review`; address feedback before moving on
 7. **Self-test** (require) — run build/lint/typecheck via `superpowers:verification-before-completion`, then the user manually tests the feature and confirms before moving on. No unit or e2e tests are written for this project.
-8. **Finish Development** (require) — `superpowers:finishing-a-development-branch`; archive the plan pair to `plans/archive/` and wrap up the git branch
+8. **Finish Development** (require) — `superpowers:finishing-a-development-branch`; wrap up the git branch
 
 ## Claude Settings (`.claude/settings.local.json`)
 

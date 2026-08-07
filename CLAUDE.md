@@ -22,11 +22,10 @@ docs/                # Core reference documentation
 ├── api/             # api.md (conventions/index) + endpoints/*.md (one file per endpoint group)
 ├── database/        # db.md — single shared schema/ERD/migration notes doc for the whole project
 ├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype + screen.md (overview)
-└── design/          # DESIGN.md + design-system.html
-plans/               # Implementation plans, separate from core docs
-├── plan.md          # Overall tracking (8-step lifecycle checklist per task)
-├── working/         # YYYY-MM-DD-task-name.spec.md + YYYY-MM-DD-task-name.md pairs, not yet archived
-└── archive/         # Same pairs, moved here once Finish Development (step 8) is done
+├── design/          # DESIGN.md + design-system.html
+└── superpowers/     # Per-task artifacts (superpowers plugin defaults), separate from core docs
+    ├── specs/       # YYYY-MM-DD-task-name.spec.md — task spec draft (step 1, Brainstorm)
+    └── plans/       # YYYY-MM-DD-task-name.md — implementation plan (step 4, Define Plan)
 tests/               # Unit / integration / e2e tests (not used by this project — see Test Instructions)
 ```
 
@@ -34,8 +33,8 @@ tests/               # Unit / integration / e2e tests (not used by this project 
 
 - `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ db ↔ branch ↔ commit.
 - Core spec (single source of truth for what a feature does): `docs/specs/CODE-feature-name.spec.md` — only ever created/updated during step 2 (Sync Core Docs), never written directly at the start of a task.
-- Task spec draft: `plans/working/YYYY-MM-DD-task-name.spec.md` — written in step 1 (Brainstorm) for every task, new feature or change alike.
-- Plan: `plans/working/YYYY-MM-DD-task-name.md`, same name/folder as its spec draft. Both move to `plans/archive/YYYY-MM-DD-task-name.{spec.md,md}` together, only once step 8 (Finish Development) runs. Each task creates a new dated pair rather than editing an old one — history stays linear.
+- Task spec draft: `docs/superpowers/specs/YYYY-MM-DD-task-name.spec.md` — written in step 1 (Brainstorm) for every task, new feature or change alike.
+- Plan: `docs/superpowers/plans/YYYY-MM-DD-task-name.md`, same task name as its spec draft. Files stay in place permanently once written — no working/archive move, git history is the record. Each task creates a new dated file rather than editing an old one — history stays linear.
 - DB notes: shared `docs/database/db.md`, extended in place per feature (no per-`CODE` file)
 - API notes: shared `docs/api/api.md` (conventions/index) + `docs/api/endpoints/*.md` per endpoint group (not per-`CODE`)
 - Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.html`.
@@ -43,20 +42,18 @@ tests/               # Unit / integration / e2e tests (not used by this project 
 ## Docs Instructions
 
 - Always brainstorm using the `superpowers:brainstorming` skill before writing a task spec — for every task, new feature or change to an existing one alike.
-- Write that task spec to `plans/working/YYYY-MM-DD-task-name.spec.md` (step 1, Brainstorm). Never write directly to `docs/specs/` at this stage — the core spec is only touched in step 2.
+- Write that task spec to `docs/superpowers/specs/YYYY-MM-DD-task-name.spec.md` (step 1, Brainstorm). Never write directly to `docs/specs/` at this stage — the core spec is only touched in step 2.
 - **Sync Core Docs gate (mandatory, no exceptions):** immediately after the task spec draft is written (step 2, before Define Plan starts), fully reconcile it into the corresponding core doc(s) under `docs/` (`specs/CODE-feature-name.spec.md`, plus `database/`, `api/`, `screens/` as applicable). Explicitly re-read the draft against the current core doc(s) and confirm every requirement/acceptance criterion is reflected before moving on to Define Plan — never defer this to the end of the task. Creating `docs/specs/CODE.spec.md` for the first time (new feature) and updating it in place (change) follow the exact same gate.
 - After a core spec is created/updated, review other related core specs to resolve conflicts (overlapping scope, contradictory behavior).
 - Every UI/HTML file (screen prototype) must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`.
 - Every screen prototype's matching `FEATURE-CODE-screen-name-00.html` is the visual source of truth for that screen — strictly follow it (layout, spacing, states), together with `docs/design/design-system.html` and `docs/design/DESIGN.md`, before writing new UI markup/styles.
 - Step 3 (Design UI) is optional — only runs when the task has UI; use the `frontend-design` skill to create/update the screen prototype.
-- Create/update the corresponding entry in `plans/plan.md` (checklist for the 8-step lifecycle in `README.md`) after each step completes.
 
 ## Define Plan Instructions
 
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:writing-plans` skill (or the `planner` agent) to create the plan.
-- Create `plans/working/YYYY-MM-DD-task-name.md`, alongside the task spec draft written in step 1, based on the core docs already synced in step 2 (`docs/specs/`, `docs/database/`, `docs/api/`, `docs/screens/`).
-- Update the checklist in `plans/plan.md`.
+- Create `docs/superpowers/plans/YYYY-MM-DD-task-name.md`, based on the core docs already synced in step 2 (`docs/specs/`, `docs/database/`, `docs/api/`, `docs/screens/`).
 - Screens/UI in the plan must follow the screen spec (`docs/screens/`) and the design system (`docs/design/`).
 
 ## Implement Instructions
@@ -64,8 +61,7 @@ tests/               # Unit / integration / e2e tests (not used by this project 
 - Follow the architecture file in `docs/architecture/` matching the stack of the sub-project you're working on.
 - Use the `superpowers:executing-plans` skill (or `superpowers:subagent-driven-development` for independent tasks).
 - Any UI implementation must strictly match the corresponding `docs/screens/FEATURE-CODE-screen-name-00.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first.
-- Always check off the checkbox in the plan file (`plans/working/YYYY-MM-DD-task-name.md`) right after finishing each step.
-- Update `plans/plan.md` after implementation is done.
+- Always check off the checkbox in the plan file (`docs/superpowers/plans/YYYY-MM-DD-task-name.md`) right after finishing each step.
 - Implementation must match the core docs already synced in step 2 — if scope diverges during implementation, update the core docs and the task spec draft to match before moving to Code Review.
 
 ## Code Review Instructions
@@ -84,5 +80,5 @@ tests/               # Unit / integration / e2e tests (not used by this project 
 
 - **Superpowers plugin required (mandatory, no exceptions):** before doing any work in this repo — brainstorming, syncing docs, planning, implementing, code review, or finishing development — confirm the Superpowers plugin is installed and its skills (`superpowers:*`) are available. If it is missing, stop and ask the user to install it first rather than proceeding with equivalent ad-hoc steps; this project's workflow (brainstorm → sync core docs → design UI → plan → implement → code review → self-test → finish development) is built directly on `superpowers:*` skills for every step except Self-test, and is not a substitute for having the plugin.
 - Use the `git-conventions` skill for git operations — GitFlow branch model + Conventional Commits.
-- Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` or `plans/` layout without confirming first.
+- Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` layout without confirming first.
 - Never read or print production secrets/config files (`.env`, `.env.production`, credentials, API keys, etc.). If a task seems to need one, ask the user instead of reading it directly.
