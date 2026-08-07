@@ -24,34 +24,19 @@ vibe-template/
 
 Adapt folder names to your stack (e.g. `src/` → `app/` for web frameworks), but keep the separation of code, docs, and tests.
 
-### Docs Conventions
+### Rules
 
-- Specs always follow `CODE-feature-name.spec.md` under `docs/specs/` — this is the **core spec**, the single current source of truth for what a feature does. `CODE` is a short uppercase identifier for the feature area (e.g. `AUTH-user-auth.spec.md`, `PAY-payment-flow.spec.md`), cross-referencing specs ↔ db ↔ branch ↔ PR.
-- Every task — a brand-new feature or a change to one that already ships — starts with a **task spec draft**: `docs/superpowers/specs/YYYY-MM-DD-task-name.spec.md`. It never touches `docs/specs/` directly; it's folded into the core spec only after implementation and tests pass (see [Docs Sync Rule](#docs-sync-rule-mandatory)).
-- The implementation plan for that task lives at `docs/superpowers/plans/YYYY-MM-DD-task-name.md`, same task name as its spec draft. Each task creates a new dated file instead of editing an old one, so history stays linear and traceable. Files stay in place permanently — no working/archive move.
-- Branch/commit naming should reference the spec code, e.g. branch `feature/AUTH-user-auth`, commit `feat(auth): ...`.
-- Screen specs live flat directly under `docs/screens/`, named `FEATURE-CODE-screen-name-00.screen.md` (e.g. `AUTH-login-01.screen.md`), where `FEATURE-CODE` matches the related spec's code. Each screen's mockup stays in its own `docs/screens/<screen-name>/mockup.png`, linked from the spec.
-- Every `.screen.md` is always paired with an HTML prototype of the same name (e.g. `AUTH-login-01.screen.md` + `AUTH-login-01.html`), sitting next to it in `docs/screens/`.
-- `docs/api/openapi.yaml` is the source of truth for REST contracts; `docs/api/endpoints/*.md` holds prose notes per endpoint group.
-- `docs/database/CODE-feature-name.db.md` holds the schema/ERD/migration notes for a feature; the API contract should be written against this, not the other way around.
-- `docs/design/DESIGN.md` captures the shared visual language (tokens, typography, spacing, components), and `docs/design/design-system.html` is a static reference page for that system.
-- `docs/adr/CODE-feature-name.adr.md` records source-code structure (which modules/folders under `src/` the feature touches) and key technical decisions (e.g. "login uses JWT, not sessions") — one ADR per feature, not one giant project-wide doc.
+- Everything under `docs/` is the **single source of truth** for the project — always consult it before developing a new feature or change, and always update it the moment something changes. Stale docs are treated as bugs.
+- See `CLAUDE.md` for the detailed naming convention and file-by-file breakdown of `docs/`.
 
 ## Project Setup (one-time, before the lifecycle)
 
 Do these once when the project starts (or whenever a project-wide technical/process decision changes) — they are not repeated per feature.
 
-1. **Define Architecture** (optional)
-   Decide the overall source code structure that every feature will build on.
-   Example: Run the skill `.claude/skills/scaffold-flutter-app` and check its output for an example.
-
-2. **Define Git Convention**
-   Agree on the branching model, commit message format, and PR flow the whole team/assistant will follow.
-   Example: `.claude/skills/git-conventions`
-
-3. **Define Design System**
-   Create or update the shared visual language, tokens, and UI reference for the product.
-   Output: `docs/design/DESIGN.md` and `docs/design/design-system.html`
+1. **Define CLAUDE.md** — project overview, structure, and conventions the assistant follows. Output: `CLAUDE.md`
+2. **Define Architecture** (optional) — overall source code structure every feature builds on. Example: run `.claude/skills/scaffold-flutter-app`
+3. **Define Git Convention** — branching model, commit format, PR flow. Example: `.claude/skills/git-conventions`
+4. **Define Design System** — shared visual language, tokens, UI reference. Output: `docs/design/DESIGN.md` and `docs/design/design-system.html`
 
 ## Vibe Coding Development Lifecycle
 
