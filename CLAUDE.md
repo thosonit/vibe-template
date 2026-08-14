@@ -55,19 +55,6 @@ Per feature/task, in order:
    - Output: `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.html` prototype
    - Notes: must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`. The `.html` prototype is the visual source of truth for that screen — strictly follow it (layout, spacing, states) before writing new UI markup/styles. Render the actual screen's full UI as it appears in the real app (full-viewport, no doc-preview chrome — no outer page header or top bar). All states the screen spec defines (default, loading, error variants, empty, etc.) live on that one real layout, switched via a floating, collapsible panel pinned to a screen corner — not side-by-side duplicate cards.
 
-     ```html
-     <!-- floating, collapsible panel fixed to a corner; <details> needs no JS -->
-     <details class="state-control">
-       <summary>Preview states</summary>
-       <label><input type="checkbox" id="state-loading"> Loading</label>
-       <label><input type="checkbox" id="state-error-invalid"> Error — invalid credentials</label>
-     </details>
-     <!-- default markup is the resting state; each toggle reveals its state's
-          banner/copy/disabled-inputs on the SAME screen via CSS :has() (works regardless
-          of DOM nesting between checkbox and target, unlike a sibling combinator):
-          e.g. body:has(#state-loading:checked) .banner-loading { display:flex; } -->
-     ```
-
 4. **Define Plan**
    - Skill: `superpowers:writing-plans` (or the `planner` agent)
    - Output: `docs/superpowers/plans/YYYY-MM-DD-task-name.md`
