@@ -115,7 +115,9 @@ Anchor link trong `.nav-links` phải khớp đúng `id` của các section chí
 
 ## 5. Yêu cầu chất lượng (frontend-design)
 
-File `design-system.html` là sản phẩm hiển thị (visual output), không phải chỉ là dữ liệu — nó phải THỰC SỰ trông đẹp, đúng cá tính brand trong DESIGN.md, không phải bản demo xám xịt. Trước khi hoàn thiện: tham khảo `/mnt/skills/public/frontend-design/SKILL.md` để quyết định các chi tiết mà DESIGN.md không nói rõ (tỷ lệ khoảng trắng, cách phối icon, độ tương phản, chi tiết vi mô như hover/shadow) — đừng để mọi design system trông giống hệt nhau về bố cục vi mô chỉ vì đổi màu.
+File `design-system.html` là sản phẩm hiển thị (visual output), không phải chỉ là dữ liệu — nó phải THỰC SỰ trông đẹp, đúng cá tính brand trong DESIGN.md, không phải bản demo xám xịt. Xem `SKILL.md` mục Bước 3 (Chế độ A) để biết quy trình brainstorm + tự phản biện đầy đủ trước khi build.
+
+**Lưu ý quan trọng**: mọi pattern mô tả trong tài liệu này (section đánh số 01/02/03, hairline border, `.section-label` uppercase) là rút ra từ 2 file mẫu cụ thể — chúng tiện dùng làm điểm khởi đầu về mặt CẤU TRÚC (skeleton, class naming, breakpoint), nhưng KHÔNG phải là công thức thẩm mỹ bắt buộc. Cách đánh số + hairline này là 1 trong các "look mặc định" mà skill `frontend-design:frontend-design` (gọi qua tool `Skill`) khuyến cáo nên tự hỏi lại trước khi dùng. Khi DESIGN.md mô tả 1 brand có cá tính khác (không editorial/broadsheet), có thể và nên thay đổi cách trình bày header section (bỏ số, đổi typographic treatment, đổi cách phân tách section) miễn là vẫn giữ đúng bộ khung dữ liệu (đủ token, đủ section nội dung, đúng ánh xạ biến CSS ở mục 2).
 
 ## 6. Quy tắc khi BỔ SUNG component/section vào file đã có
 
