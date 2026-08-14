@@ -53,22 +53,18 @@ Per feature/task, in order:
 3. **Design UI** (optional — only if the task has UI)
    - Skill: `frontend-design`
    - Output: `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.html` prototype
-   - Notes: must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`. The `.html` prototype is the visual source of truth for that screen — strictly follow it (layout, spacing, states) before writing new UI markup/styles. The page must render the actual screen's full UI exactly as it appears in the real app (full-viewport background, real layout — no extra doc-preview chrome like an outer page header or an inline top bar wrapping the screen). Every status/state the screen spec defines (default, loading, error variants, empty, etc.) is controlled by a small floating panel pinned to a screen corner (fixed position, collapsible/dropdown) that toggles states inline on the one real layout, instead of comparing side-by-side duplicate cards.
+   - Notes: must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`. The `.html` prototype is the visual source of truth for that screen — strictly follow it (layout, spacing, states) before writing new UI markup/styles. Render the actual screen's full UI as it appears in the real app (full-viewport, no doc-preview chrome — no outer page header or top bar). All states the screen spec defines (default, loading, error variants, empty, etc.) live on that one real layout, switched via a floating, collapsible panel pinned to a screen corner — not side-by-side duplicate cards.
 
      ```html
-     <!-- floating control panel, fixed to a corner, sits above the real screen underneath it -->
-     <div class="state-control">
-       <button class="state-control-toggle">Preview states ▾</button>
-       <div class="state-control-panel">
-         <label><input type="checkbox" id="state-loading"> Loading</label>
-         <label><input type="checkbox" id="state-error-invalid"> Error — invalid credentials</label>
-         <label><input type="checkbox" id="state-locked"> Error — account locked</label>
-       </div>
-     </div>
+     <!-- floating, collapsible panel fixed to a corner; <details> needs no JS -->
+     <details class="state-control">
+       <summary>Preview states</summary>
+       <label><input type="checkbox" id="state-loading"> Loading</label>
+       <label><input type="checkbox" id="state-error-invalid"> Error — invalid credentials</label>
+     </details>
      <!-- default markup is the resting state; each toggle reveals its state's
-          banner/copy/disabled-inputs on the SAME real screen via CSS :has() (works regardless
-          of DOM nesting between the checkbox and the target — a sibling combinator
-          only works if they share a parent, which is easy to break by accident):
+          banner/copy/disabled-inputs on the SAME screen via CSS :has() (works regardless
+          of DOM nesting between checkbox and target, unlike a sibling combinator):
           e.g. body:has(#state-loading:checked) .banner-loading { display:flex; } -->
      ```
 
