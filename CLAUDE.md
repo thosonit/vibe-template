@@ -1,11 +1,6 @@
 # CLAUDE.md
 
-Starter template for "vibe coding" — fast, iterative development in conversation with an AI assistant instead of heavy upfront design docs. Multi-stack: each sub-project lives in its own `src/<project-name>/` folder, with its source architecture defined under `docs/architecture/`:
-
-- `docs/architecture/NEXT_ARCHITECTURE.md` — Next.js (App Router, Server Components by default, Prisma, feature-first).
-- `docs/architecture/FLUTTER_ARCHITECTURE.md` — Flutter app.
-- When starting a sub-project, read the matching architecture file before writing new code; don't assume a stack that hasn't been confirmed.
-- Never place source code directly under `src/` — always nest it under `src/<project-name>/` (e.g. `src/web/`, `src/mobile/`), so multiple stacks can coexist in the same repo.
+Starter template for "vibe coding" — fast, iterative development in conversation with an AI assistant instead of heavy upfront design docs. Multi-stack: each sub-project lives in its own `src/<project-name>/` folder, with its source architecture defined under `docs/architecture/`.
 
 ## Structure
 
@@ -52,18 +47,18 @@ Per feature/task, in order:
 
 3. **Design UI** (optional — only if the task has UI)
    - Skill: `frontend-design`
-   - Output: `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.html` prototype
+   - Output: `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.screen.html` prototype
    - Notes: must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`. The `.html` prototype is the visual source of truth for that screen — strictly follow it (layout, spacing, states) before writing new UI markup/styles. Render the actual screen's full UI as it appears in the real app (full-viewport, no doc-preview chrome — no outer page header or top bar). All states the screen spec defines (default, loading, error variants, empty, etc.) live on that one real layout, switched via a floating, collapsible panel pinned to a screen corner — not side-by-side duplicate cards.
 
 4. **Define Plan**
    - Skill: `superpowers:writing-plans` (or the `planner` agent)
    - Output: `docs/superpowers/plans/YYYY-MM-DD-task-name.md`
-   - Notes: follow the architecture file matching the sub-project's stack. Base the plan on the core docs already synced in step 2. Screens/UI in the plan must follow the screen spec (`docs/screens/`) and the design system (`docs/design/`).
+   - Notes: must strictly comply with the architecture file matching the sub-project's stack — no deviating from its patterns/structure without confirming first. Base the plan on the core docs already synced in step 2. Screens/UI in the plan must strictly follow the screen's `docs/screens/FEATURE-CODE-screen-name-00.screen.html` prototype and the design system (`docs/design/`).
 
 5. **Implement**
    - Skill: `superpowers:executing-plans` (or `superpowers:subagent-driven-development` for independent tasks)
    - Output: working code matching the plan
-   - Notes: follow the architecture file matching the sub-project's stack. UI implementation must strictly match the screen prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first. Check off the checkbox in the plan file right after finishing each step. If scope diverges, update the core docs and task spec draft to match before Code Review.
+   - Notes: follow the architecture file matching the sub-project's stack. UI implementation must strictly match the screen's `docs/screens/FEATURE-CODE-screen-name-00.screen.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first. Check off the checkbox in the plan file right after finishing each step. If scope diverges, update the core docs and task spec draft to match before Code Review.
 
 6. **Code Review** (require)
    - Skill: `superpowers:requesting-code-review`
@@ -85,3 +80,4 @@ Per feature/task, in order:
 - Use the `git-conventions` skill for git operations — GitFlow branch model + Conventional Commits.
 - Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` layout without confirming first.
 - Never read or print production secrets/config files (`.env`, `.env.production`, credentials, API keys, etc.). If a task seems to need one, ask the user instead of reading it directly.
+- Never place source code directly under `src/` — nest each sub-project under `src/<project-name>/` (e.g. `src/web/`, `src/mobile/`).
