@@ -5,79 +5,79 @@ description: Build a self-contained design-system.html file (colors, typography,
 
 # Design System HTML Builder
 
-Sinh ra file `design-system.html` — một trang tĩnh, tự chứa, trình bày trực quan toàn bộ design token (màu, typography, spacing, radius, elevation, component) lấy từ file `DESIGN.md`. Mục đích của file này KHÁC với `DESIGN.md`: DESIGN.md là dữ liệu token cho agent đọc trực tiếp, còn `design-system.html` là bản trình bày trực quan đầy đủ để agent (và con người) *nhìn thấy* design system trông như thế nào trước khi code UI thật — giảm sai lệch khi áp dụng token vào layout thực tế.
+Generate `design-system.html` — a static, self-contained page visually presenting every design token (color, typography, spacing, radius, elevation, component) pulled from a `DESIGN.md` file. This file's purpose is DIFFERENT from `DESIGN.md`: DESIGN.md is machine-readable token data for an agent to consume directly, while `design-system.html` is the full visual presentation so an agent (and a human) can *see* what the design system looks like before writing real UI code — reducing drift when tokens are applied to an actual layout.
 
-Đọc `references/structure-spec.md` trước khi bắt đầu bất kỳ việc tạo/sửa file nào trong skill này — đây là đặc tả cấu trúc, quy ước đặt tên class/biến CSS, và danh mục section bắt buộc/tùy chọn. Hai file `references/example-anthropic.html` và `references/example-mongodb.html` là ví dụ thật để đối chiếu khi cần xem cách 1 pattern cụ thể được implement (mở bằng `Read` khi cần, không cần đọc toàn bộ nếu `structure-spec.md` đã đủ).
+Read `references/structure-spec.md` before starting any create/edit work in this skill — it's the structural spec, the CSS class/variable naming conventions, and the catalog of required/optional sections. The two files `references/example-anthropic.html` and `references/example-mongodb.html` are real examples to cross-reference when you need to see how a specific pattern was implemented (open with `Read` when needed — no need to read them in full if `structure-spec.md` is already enough).
 
-Skill có 2 chế độ: **(A) Tạo mới** và **(B) Bổ sung/mở rộng** file đã có. Xác định chế độ trước khi làm gì khác — nếu người dùng đề cập tới 1 file `design-system.html` đã tồn tại (upload, hoặc đã tạo trong phiên trước), luôn dùng chế độ B thay vì tạo lại từ đầu.
+The skill has 2 modes: **(A) Create new** and **(B) Add to/extend** an existing file. Determine the mode before doing anything else — if the user references an existing `design-system.html` (uploaded, or created in a previous session), always use mode B instead of rebuilding from scratch.
 
-## Chế độ A — Tạo mới file design-system.html
+## Mode A — Create a new design-system.html
 
-### Bước 1 — Tìm và đọc DESIGN.md
+### Step 1 — Find and read DESIGN.md
 
-- Tìm `DESIGN.md` trong `docs/design/` (theo cấu trúc chuẩn của project — xem `CLAUDE.md`). Nếu người dùng chỉ đường dẫn khác, đọc trực tiếp bằng `Read`.
-- Nếu chưa có, hỏi người dùng cung cấp, hoặc nếu họ nói "chưa có, tạo giúp tôi luôn" thì trước tiên chạy quy trình của skill `design-md-builder` (dùng tool `Skill`) để tạo DESIGN.md, rồi mới tiếp tục.
-- KHÔNG tự bịa token nếu DESIGN.md không có — thà hỏi lại còn hơn tạo ra design system sai lệch với ý định thật của người dùng.
+- Look for `DESIGN.md` in `docs/design/` (per the project's standard structure — see `CLAUDE.md`). If the user points to a different path, read it directly with `Read`.
+- If it doesn't exist yet, ask the user to provide it, or if they say "there isn't one, just make it for me" then first run the `design-md-builder` skill's process (via the `Skill` tool) to create DESIGN.md, then continue.
+- Do NOT invent tokens if DESIGN.md is missing — better to ask again than to produce a design system that doesn't match the user's real intent.
 
-### Bước 2 — Lập kế hoạch section
+### Step 2 — Plan the sections
 
-Dựa trên token và phần `components` trong DESIGN.md, xác định:
-- Section lõi (luôn có — xem mục 3 trong `structure-spec.md`): Colors, Typography, Buttons, Cards, Spacing Scale, Border Radius Scale, Elevation & Depth, Responsive Behavior.
-- Section tùy chọn nào có căn cứ (component đã định nghĩa trong DESIGN.md, hoặc người dùng có yêu cầu riêng): badges, forms, pricing, callout, tiles, tabs, code mockup, testimonials...
+Based on the tokens and the `components` section in DESIGN.md, determine:
+- Core sections (always present — see item 3 in `structure-spec.md`): Colors, Typography, Buttons, Cards, Spacing Scale, Border Radius Scale, Elevation & Depth, Responsive Behavior.
+- Optional sections with justification (a component defined in DESIGN.md, or a specific user request): badges, forms, pricing, callout, tiles, tabs, code mockup, testimonials...
 
-Nếu không chắc nên thêm section tùy chọn nào, hỏi nhanh người dùng qua `AskUserQuestion` (ví dụ: "Sản phẩm của bạn có cần trang pricing/testimonial trong bản showcase này không, hay chỉ cần các thành phần UI cơ bản?") thay vì tự quyết hoặc hỏi dài dòng.
+If unsure which optional sections to add, ask the user a quick question via `AskUserQuestion` (e.g. "Does your product need a pricing/testimonial page in this showcase, or just the basic UI components?") instead of deciding unilaterally or asking a long list of questions.
 
-### Bước 3 — Chạy quy trình frontend-design thật sự, không chỉ "tham khảo"
+### Step 3 — Actually run the frontend-design process, not just "reference" it
 
-Gọi `Skill({skill: "frontend-design:frontend-design"})` và **thực sự đi qua quy trình 2 pha** của nó cho những phần DESIGN.md không quy định chi tiết (bố cục hero, cách minh họa icon, chi tiết hover/shadow, có nên đánh số section hay không):
+Call `Skill({skill: "frontend-design:frontend-design"})` and **genuinely go through its two-phase process** for anything DESIGN.md doesn't specify in detail (hero layout, how to illustrate icons, hover/shadow details, whether to number sections):
 
-1. **Brainstorm trước khi viết code**: dựa trên DESIGN.md, phác nhanh (trong thinking, không cần show hết cho người dùng) — layout hero sẽ trông ra sao, minh họa nào là "signature element" đặc trưng cho brand này (không phải khối hero chung chung), và bố cục section có nên dùng label số thứ tự hay không.
-2. **Tự phản biện trước khi build**: hỏi lại — nếu output đang định làm có rơi vào 1 trong 3 "look mặc định" mà frontend-design cảnh báo không (cream+serif+terracotta; nền đen+accent neon; broadsheet với hairline + đánh số 01/02/03 khắp nơi)? Pattern `section-label` đánh số kế thừa từ 2 file mẫu tham chiếu (`example-anthropic.html`, `example-mongodb.html`) CHÍNH LÀ dạng broadsheet này — chỉ giữ cách đánh số đó nếu nó thực sự hợp lý với DESIGN.md đang xử lý (ví dụ bản thân DESIGN.md có phong cách editorial/broadsheet), còn nếu DESIGN.md mô tả 1 brand có cá tính khác hẳn (playful, tối giản phi-hairline, v.v.) thì nên bỏ số thứ tự hoặc đổi cách trình bày section cho phù hợp — đừng giữ nguyên khuôn chỉ vì đó là format của file mẫu.
-3. Chỉ sau khi đã tự phản biện xong mới viết code, bám theo kế hoạch đã chốt.
+1. **Brainstorm before writing code**: based on DESIGN.md, quickly sketch (in thinking, no need to show all of it to the user) — what the hero layout will look like, which illustration is the "signature element" distinctive to this brand (not a generic hero block), and whether the section layout should use numbered labels.
+2. **Self-critique before building**: ask yourself — does the planned output fall into one of the 3 "default looks" frontend-design warns about (cream+serif+terracotta; near-black background+neon accent; broadsheet with hairlines + 01/02/03 numbering everywhere)? The numbered `section-label` pattern inherited from the two reference example files (`example-anthropic.html`, `example-mongodb.html`) IS that broadsheet look — only keep that numbering if it's genuinely a good fit for the DESIGN.md being processed (e.g. the DESIGN.md itself is editorial/broadsheet in character); if DESIGN.md describes a brand with a very different personality (playful, minimal without hairlines, etc.), drop the numbering or change the section presentation accordingly — don't keep the mold just because it's the example files' format.
+3. Only write code after the self-critique is done, following the finalized plan.
 
-File cuối cùng phải phản ánh đúng cá tính brand trong DESIGN.md — không phải một template dùng chung cho mọi brand chỉ khác màu.
+The final file must reflect the actual brand personality in DESIGN.md — not a template shared across every brand that only changes color.
 
-### Bước 4 — Viết file
+### Step 4 — Write the file
 
-Dùng `Write` để viết `docs/design/design-system.html` (cùng thư mục với `DESIGN.md`) theo đúng skeleton, ánh xạ token, và pattern class trong `structure-spec.md`:
-- Toàn bộ màu/font lấy từ biến CSS `:root`, đặt tên biến bám sát tên token gốc trong DESIGN.md (xem bảng ánh xạ mục 2 trong spec) — để agent đọc code sau này dễ đối chiếu ngược lại DESIGN.md.
-- Section đánh số liên tục, đúng thứ tự lõi trước, tùy chọn chèn giữa, Responsive Behavior luôn là section cuối.
-- KHÔNG copy nav-badge/footer quảng bá của công cụ gốc (xem cảnh báo đầu `structure-spec.md`) — nav và footer phải mang bản sắc của chính brand đang mô tả.
-- File tự chứa hoàn toàn: 1 khối `<style>` duy nhất, không phụ thuộc framework ngoài, chỉ load Google Fonts nếu DESIGN.md có chỉ định font ngoài hệ thống.
+Use `Write` to write `docs/design/design-system.html` (same directory as `DESIGN.md`) following the skeleton, token mapping, and class patterns in `structure-spec.md`:
+- All colors/fonts come from `:root` CSS custom properties, named after the original token names in DESIGN.md (see the mapping table in item 2 of the spec) — so an agent reading the code later can easily cross-reference back to DESIGN.md.
+- Sections numbered continuously, core sections first, optional ones inserted in between, Responsive Behavior always the last section.
+- Do NOT copy the promotional nav-badge/footer of the original tool (see the warning at the top of `structure-spec.md`) — the nav and footer must carry the identity of the brand being described, not the tool that generated the file.
+- The file is fully self-contained: a single `<style>` block, no external framework dependency, only load Google Fonts if DESIGN.md specifies a font outside the system stack.
 
-### Bước 5 — Present
+### Step 5 — Present
 
-Báo lại ngắn gọn cho người dùng: đường dẫn file vừa ghi (`docs/design/design-system.html`), bao nhiêu section, những gì suy luận thêm ngoài DESIGN.md gốc (nếu có) và vì sao.
+Report back to the user concisely: the path of the file just written (`docs/design/design-system.html`), how many sections, and anything inferred beyond the original DESIGN.md (if any) and why.
 
-## Chế độ B — Bổ sung / mở rộng component vào file đã có
+## Mode B — Add / extend a component in an existing file
 
-Dùng khi người dùng nói kiểu "thêm cho tôi 1 component X vào design-system.html", "bổ sung phần Y", "thêm UI cho Z".
+Use this when the user says something like "add component X to design-system.html", "add section Y", "add UI for Z".
 
-### Bước 1 — Đọc cả 2 nguồn sự thật
+### Step 1 — Read both sources of truth
 
-1. Đọc `DESIGN.md` liên quan để lấy token/rule chuẩn (màu, font, rounded, spacing đã định nghĩa). Nếu component mới cần token/màu chưa có trong DESIGN.md, KHÔNG tự bịa — hỏi người dùng: dùng tạm token gần nhất đã có, hay cập nhật DESIGN.md trước (và nếu cập nhật, chạy lại lint qua skill `design-md-builder` nếu có).
-2. Đọc file `design-system.html` hiện có (bằng `Read`) để lấy: danh sách biến CSS đang dùng trong `:root`, quy ước class hiện tại, số thứ tự section cuối cùng trước "Responsive Behavior".
+1. Read the relevant `DESIGN.md` to get the canonical tokens/rules (colors, fonts, rounding, spacing already defined). If the new component needs a token/color not yet in DESIGN.md, do NOT invent one — ask the user: use the closest existing token for now, or update DESIGN.md first (and if updated, re-run lint via the `design-md-builder` skill if available).
+2. Read the existing `design-system.html` file (with `Read`) to get: the list of CSS variables currently used in `:root`, current class conventions, the last section number before "Responsive Behavior".
 
-### Bước 2 — Xây component mới đúng quy ước sẵn có, vẫn qua lăng kính frontend-design
+### Step 2 — Build the new component following existing conventions, still through the frontend-design lens
 
-Ngay cả khi bổ sung, không tắt tư duy thẩm mỹ: gọi `Skill({skill: "frontend-design:frontend-design"})` (đặc biệt phần "Restraint and self-critique") để component mới không bị lạc tông so với phần còn lại — cùng mức độ chi tiết, cùng ngôn ngữ hover/shadow, không mang thêm 1 "signature element" mới cạnh tranh với cái đã có.
+Even when just adding to an existing file, don't switch off aesthetic judgment: call `Skill({skill: "frontend-design:frontend-design"})` (especially the "Restraint and self-critique" section) so the new component doesn't clash in tone with the rest — same level of detail, same hover/shadow language, no new "signature element" competing with the existing one.
 
-Theo mục 6 của `structure-spec.md`:
-- Section mới chèn TRƯỚC section "Responsive Behavior", đánh số tiếp theo số cuối +1.
-- Style mới nối vào cuối khối `<style>` hiện có (không tạo `<style>` thứ hai), tái sử dụng đúng biến `:root` đã có thay vì viết mã hex trực tiếp.
-- Giữ đúng pattern header section (`section-label` + `section-heading` + `section-intro`) và pattern grid/gap tương tự các section cùng loại đã có (vd nếu thêm biến thể button, dùng lại `.button-grid`/`.button-cell` hiện có thay vì tạo class song song).
-- Nếu section đủ quan trọng, thêm mục vào `.nav-links` trỏ tới `id` mới.
+Per item 6 of `structure-spec.md`:
+- Insert the new section BEFORE the "Responsive Behavior" section, numbered as the last number + 1.
+- Append new styles to the end of the existing `<style>` block (don't create a second `<style>` block), reusing the existing `:root` variables instead of hardcoding hex values.
+- Keep the section header pattern (`section-label` + `section-heading` + `section-intro`) and the same grid/gap pattern as sections of the same type (e.g. if adding a button variant, reuse the existing `.button-grid`/`.button-cell` instead of creating parallel classes).
+- If the section is important enough, add an entry to `.nav-links` pointing to the new `id`.
 
-### Bước 3 — Chèn bằng Edit và kiểm tra lại
+### Step 3 — Insert with Edit and double-check
 
-Dùng `Edit` để chèn section mới ngay trước `<section id="responsive">` (hoặc thẻ tương đương), và chèn CSS mới ngay trước thẻ đóng `</style>`. Sau khi chèn, xem lại nhanh 2 breakpoint media query hiện có để đảm bảo section mới không vỡ layout ở mobile — nếu component mới dùng grid nhiều cột, thêm dòng thu gọn cột vào đúng media query hiện có thay vì bỏ qua.
+Use `Edit` to insert the new section right before `<section id="responsive">` (or the equivalent tag), and insert new CSS right before the closing `</style>` tag. After inserting, quickly review the 2 existing breakpoint media queries to make sure the new section doesn't break the mobile layout — if the new component uses a multi-column grid, add a column-collapsing rule to the existing media query rather than skipping it.
 
-### Bước 4 — Present
+### Step 4 — Present
 
-Báo lại ngắn gọn: phần vừa thêm vào `design-system.html` và section số bao nhiêu.
+Report back briefly: what was just added to `design-system.html` and what section number it is.
 
-## Lưu ý chung
+## General notes
 
-- File `design-system.html` không chứa logic tương tác thật (không cần JS) trừ khi người dùng yêu cầu rõ một demo có thể click/tương tác — mục tiêu chính là trình bày trực quan token + component, không phải xây 1 website hoạt động đầy đủ.
-- Nếu DESIGN.md ở trạng thái chưa lint sạch (còn error), nên báo cho người dùng biết trước khi build design-system.html từ nó, vì lỗi token (`broken-ref`...) sẽ khiến trang hiển thị sai.
-- Không giới hạn cứng phải đủ 13-17 section như 2 file mẫu — số lượng section phụ thuộc vào độ phong phú thật của DESIGN.md đầu vào.
+- `design-system.html` doesn't need real interactive logic (no JS needed) unless the user explicitly asks for a clickable/interactive demo — the main goal is visually presenting tokens + components, not building a fully functional website.
+- If DESIGN.md isn't lint-clean yet (still has errors), tell the user before building design-system.html from it, since token errors (`broken-ref`...) will make the page render incorrectly.
+- There's no hard requirement to have 13-17 sections like the two example files — the number of sections depends on how rich the input DESIGN.md actually is.

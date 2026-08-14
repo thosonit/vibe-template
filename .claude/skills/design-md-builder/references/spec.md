@@ -1,22 +1,22 @@
-# DESIGN.md — Đặc tả định dạng (condensed, dựa trên google-labs-code/design.md, version: alpha)
+# DESIGN.md — Format Spec (condensed, based on google-labs-code/design.md, version: alpha)
 
-Nguồn gốc: https://github.com/google-labs-code/design.md — spec đầy đủ tại `docs/spec.md` trong repo đó.
+Source: https://github.com/google-labs-code/design.md — the full spec is at `docs/spec.md` in that repo.
 
-## 1. Cấu trúc file
+## 1. File structure
 
-Một file DESIGN.md gồm 2 lớp:
+A DESIGN.md file has 2 layers:
 
-1. **YAML front matter** — token thiết kế máy đọc được, nằm giữa 2 dòng `---` ở đầu file.
-2. **Markdown body** — văn xuôi giải thích lý do, tổ chức theo heading `##`.
+1. **YAML front matter** — machine-readable design tokens, between two `---` lines at the top of the file.
+2. **Markdown body** — prose explaining the rationale, organized under `##` headings.
 
-Token là nguồn giá trị chuẩn (normative). Văn xuôi chỉ giải thích ngữ cảnh áp dụng — không được mâu thuẫn với token.
+Tokens are the normative source of truth. The prose only explains context for applying them — it must not contradict the tokens.
 
 ## 2. Token schema
 
 ```yaml
-version: alpha              # tùy chọn, hiện tại luôn là "alpha"
-name: <string>               # bắt buộc
-description: <string>        # tùy chọn
+version: alpha              # optional, currently always "alpha"
+name: <string>               # required
+description: <string>        # optional
 colors:
   <token-name>: <Color>
 typography:
@@ -30,18 +30,18 @@ components:
     <token-name>: <string | token reference>
 ```
 
-Lưu ý: `colors` nên có tối thiểu một token tên `primary` (linter sẽ cảnh báo `missing-primary` nếu thiếu — agent đọc file sẽ tự bịa ra màu chính nếu không có).
+Note: `colors` should have at minimum a token named `primary` (the linter will warn `missing-primary` if absent — an agent reading the file will otherwise invent its own primary color).
 
-## 3. Kiểu token (Token Types)
+## 3. Token Types
 
-| Type            | Định dạng                                                                                                          | Ví dụ                                 |
+| Type            | Format                                                                                                             | Example                                |
 | --------------- | -------------------------------------------------------------------------------------------------------------------| -------------------------------------- |
-| Color           | Bất kỳ màu CSS hợp lệ nào (hex, `rgb()`, `oklch()`, tên màu, v.v.)                                                  | `"#1A1C1E"`, `"oklch(62% 0.18 250)"`  |
-| Dimension       | số + đơn vị (`px`, `em`, `rem`)                                                                                     | `48px`, `-0.02em`                     |
-| Token Reference | `{path.to.token}` — trỏ tới token khác đã định nghĩa                                                               | `{colors.primary}`                    |
-| Typography      | object với các field: `fontFamily`, `fontSize`, `fontWeight`, `lineHeight`, `letterSpacing`, `fontFeature`, `fontVariation` | xem ví dụ bên dưới              |
+| Color           | Any valid CSS color (hex, `rgb()`, `oklch()`, color name, etc.)                                                    | `"#1A1C1E"`, `"oklch(62% 0.18 250)"`  |
+| Dimension       | number + unit (`px`, `em`, `rem`)                                                                                   | `48px`, `-0.02em`                     |
+| Token Reference | `{path.to.token}` — points to another token already defined                                                        | `{colors.primary}`                    |
+| Typography      | object with fields: `fontFamily`, `fontSize`, `fontWeight`, `lineHeight`, `letterSpacing`, `fontFeature`, `fontVariation` | see example below                 |
 
-Ví dụ Typography đầy đủ:
+Full Typography example:
 ```yaml
 typography:
   h1:
@@ -52,11 +52,11 @@ typography:
     letterSpacing: "-0.02em"
 ```
 
-## 4. Thứ tự section (bắt buộc nếu section đó xuất hiện)
+## 4. Section order (required if the section is present)
 
-Section dùng heading `##`. Có thể bỏ qua section, nhưng nếu có mặt thì PHẢI xuất hiện đúng thứ tự này (linter rule `section-order`, mức warning nếu sai thứ tự):
+Sections use `##` headings. Sections can be skipped, but if present they MUST appear in this order (linter rule `section-order`, warning severity if out of order):
 
-| # | Section            | Tên khác được chấp nhận (alias) |
+| # | Section            | Accepted aliases                 |
 | - | ------------------ | -------------------------------- |
 | 1 | Overview           | Brand & Style                    |
 | 2 | Colors             |                                   |
@@ -67,11 +67,11 @@ Section dùng heading `##`. Có thể bỏ qua section, nhưng nếu có mặt t
 | 7 | Components         |                                   |
 | 8 | Do's and Don'ts    |                                   |
 
-Không được có 2 section trùng heading — đây là lỗi cứng (error), file sẽ bị từ chối.
+Two sections must never share the same heading — this is a hard error and the file will be rejected.
 
 ## 5. Component tokens
 
-Components ánh xạ tên tới nhóm sub-token:
+Components map a name to a group of sub-tokens:
 
 ```yaml
 components:
@@ -84,23 +84,23 @@ components:
     backgroundColor: "{colors.tertiary-container}"
 ```
 
-Thuộc tính component hợp lệ: `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`.
+Valid component properties: `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`.
 
-Biến thể (hover, active, pressed, disabled...) được biểu diễn bằng entry component RIÊNG BIỆT có tên liên quan, ví dụ `button-primary-hover`, `button-primary-active` — không lồng state vào bên trong 1 component.
+Variants (hover, active, pressed, disabled...) are represented as a SEPARATE component entry with a related name, e.g. `button-primary-hover`, `button-primary-active` — don't nest states inside a single component.
 
-## 6. Cách agent xử lý nội dung không xác định
+## 6. How agents should handle unrecognized content
 
-| Tình huống                             | Hành vi                          |
+| Situation                               | Behavior                          |
 | --------------------------------------- | --------------------------------- |
-| Heading section lạ                      | Giữ nguyên, không báo lỗi         |
-| Tên color token lạ                      | Chấp nhận nếu value hợp lệ        |
-| Tên typography token lạ                 | Chấp nhận như typography hợp lệ   |
-| Component property lạ                   | Chấp nhận, kèm warning            |
-| Heading section trùng lặp               | Lỗi — từ chối file                |
+| Unknown section heading                 | Keep as-is, no error              |
+| Unknown color token name                | Accept if the value is valid      |
+| Unknown typography token name           | Accept as valid typography        |
+| Unknown component property              | Accept, with a warning            |
+| Duplicate section heading               | Error — file rejected             |
 
 ## 7. CLI — `@google/design.md` (npm package)
 
-Cài đặt / chạy trực tiếp:
+Install / run directly:
 ```bash
 npx @google/design.md lint DESIGN.md
 npx @google/design.md diff DESIGN.md DESIGN-v2.md
@@ -110,38 +110,38 @@ npx @google/design.md export --format dtcg DESIGN.md > tokens.json
 npx @google/design.md spec --rules
 ```
 
-**Lưu ý Windows/PowerShell**: nếu `npx @google/design.md ...` không có output hoặc mở nhầm trình soạn thảo Markdown, dùng alias không dấu chấm:
+**Windows/PowerShell note**: if `npx @google/design.md ...` produces no output or opens the wrong Markdown editor, use the dot-free alias:
 ```bash
 npx -p @google/design.md designmd lint DESIGN.md
 ```
 
 ### `lint`
-Trả JSON gồm `findings[]` (mỗi finding có `severity`: error/warning/info, `path`, `message`) và `summary: {errors, warnings, info}`. Exit code `1` nếu có error, `0` nếu không.
+Returns JSON with `findings[]` (each finding has `severity`: error/warning/info, `path`, `message`) and `summary: {errors, warnings, info}`. Exit code `1` if there are errors, `0` otherwise.
 
-### Các rule của linter (9 rules)
+### Linter rules (9 rules)
 
-| Rule                 | Severity | Kiểm tra gì                                                                                   |
-| -------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `broken-ref`         | error    | Token reference (`{colors.primary}`) không trỏ tới token nào tồn tại                           |
-| `missing-primary`    | warning  | Có colors nhưng thiếu token `primary`                                                          |
-| `contrast-ratio`     | warning  | Cặp `backgroundColor`/`textColor` của component dưới ngưỡng WCAG AA (4.5:1)                    |
-| `orphaned-tokens`    | warning  | Color token định nghĩa nhưng không được component nào tham chiếu                               |
-| `token-summary`      | info     | Tóm tắt số lượng token mỗi nhóm                                                                 |
-| `missing-sections`   | info     | Section tùy chọn (spacing, rounded) vắng mặt dù các token khác đã có                            |
-| `missing-typography` | warning  | Có colors nhưng thiếu typography token                                                         |
-| `section-order`      | warning  | Section xuất hiện sai thứ tự chuẩn                                                              |
-| `unknown-key`        | warning  | Key YAML cấp cao nhìn giống lỗi chính tả của key chuẩn (vd `colours:` → `colors:`)              |
+| Rule                 | Severity | What it checks                                                                                |
+| -------------------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `broken-ref`         | error    | A token reference (`{colors.primary}`) doesn't point to any existing token                     |
+| `missing-primary`    | warning  | `colors` is present but is missing a `primary` token                                           |
+| `contrast-ratio`     | warning  | A component's `backgroundColor`/`textColor` pair falls below the WCAG AA threshold (4.5:1)      |
+| `orphaned-tokens`    | warning  | A color token is defined but not referenced by any component                                    |
+| `token-summary`      | info     | Summarizes the token count per group                                                            |
+| `missing-sections`   | info     | An optional section (spacing, rounded) is absent even though other tokens are present           |
+| `missing-typography` | warning  | `colors` is present but `typography` tokens are missing                                         |
+| `section-order`      | warning  | Sections appear out of the standard order                                                       |
+| `unknown-key`        | warning  | A top-level YAML key looks like a typo of a standard key (e.g. `colours:` → `colors:`)          |
 
 ### `export`
-| Format          | Output | Mô tả                                                          |
+| Format          | Output | Description                                                    |
 | --------------- | ------ | ---------------------------------------------------------------|
 | `json-tailwind` | JSON   | Tailwind v3 `theme.extend` config object                       |
 | `css-tailwind`  | CSS    | Tailwind v4 `@theme {...}` block, CSS custom properties         |
-| `tailwind`      | JSON   | Alias của `json-tailwind`                                      |
+| `tailwind`      | JSON   | Alias for `json-tailwind`                                      |
 | `dtcg`          | JSON   | W3C Design Tokens Format Module (tokens.json)                   |
 
-Exit code: `0` export thành công, `1` sai `--format` hoặc lỗi emitter, `2` không đọc được file input.
+Exit code: `0` export succeeded, `1` invalid `--format` or emitter error, `2` couldn't read the input file.
 
-## 8. Trạng thái
+## 8. Status
 
-Format đang ở `version: alpha`, có thể thay đổi. Luôn ưu tiên chạy `lint` thật (qua npx) thay vì tự đoán lỗi, vì linter là nguồn sự thật chính xác nhất.
+The format is currently `version: alpha` and may change. Always prefer running the real `lint` (via npx) over guessing at errors — the linter is the most accurate source of truth.

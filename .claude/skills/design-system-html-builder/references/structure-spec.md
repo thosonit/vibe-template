@@ -1,103 +1,103 @@
-# Cấu trúc & quy ước của `design-system.html`
+# Structure & conventions for `design-system.html`
 
-Tài liệu này mô tả pattern chuẩn được rút ra từ 2 file tham chiếu `references/example-anthropic.html` và `references/example-mongodb.html` (dạng "Design System Analysis" tạo bởi công cụ getdesign.md/awesome-design-md). Dùng tài liệu này làm khuôn khi sinh file `design-system.html` mới, và cả khi bổ sung section/component vào file đã có.
+This document describes the standard pattern derived from the 2 reference files `references/example-anthropic.html` and `references/example-mongodb.html` (a "Design System Analysis" style page created by the getdesign.md/awesome-design-md tool). Use this document as the mold when generating a new `design-system.html`, and also when adding sections/components to an existing file.
 
-## ⚠️ Phần KHÔNG được sao chép lại
+## ⚠️ Parts that must NOT be copied
 
-Trong 2 file mẫu có một số nội dung chỉ là "chrome" quảng bá của công cụ đã tạo ra chúng, KHÔNG phải một phần design system của brand được phân tích — không bao giờ copy các phần này vào file mới:
+The 2 example files contain some content that is only promotional "chrome" from the tool that generated them, NOT part of the analyzed brand's design system — never copy these parts into a new file:
 
-- Link/badge `getdesign.md` và `awesome-design-md` GitHub trong nav.
-- Footer 4 cột quảng bá "VoltAgent Framework / VoltOps..." ở cuối file.
-- Script `cloudflareinsights.com` beacon.
+- The `getdesign.md` and `awesome-design-md` GitHub link/badge in the nav.
+- The 4-column footer promoting "VoltAgent Framework / VoltOps..." at the end of the file.
+- The `cloudflareinsights.com` beacon script.
 
-Nav và footer trong file mới phải mang thương hiệu/nội dung của chính design system đang mô tả (tên brand, hoặc để trống/placeholder trung lập), không phải thương hiệu của công cụ tạo file.
+The nav and footer in a new file must carry the brand/content of the design system being described (the brand name, or a neutral blank/placeholder), not the branding of the tool that generated the file.
 
-## 1. Bộ khung trang (page skeleton)
+## 1. Page skeleton
 
-Thứ tự bắt buộc trong file:
+Required order in the file:
 
 ```
 <html>
   <head>
     <meta charset, viewport, title>
-    <link> Google Fonts (preconnect + stylesheet) — chỉ load đúng font mà DESIGN.md yêu cầu
-    <style> — 1 khối CSS duy nhất, mọi màu/font/spacing dùng CSS custom properties trong :root
+    <link> Google Fonts (preconnect + stylesheet) — only load the fonts DESIGN.md actually requires
+    <style> — a single CSS block, every color/font/spacing uses CSS custom properties in :root
   </head>
   <body>
-    <nav>            — sticky, 3 cột (brand | anchor links | CTA)
-    <div class="hero"> — 2 cột: content (h1+p+2 CTA) | art (code mockup hoặc visual)
-    <section id="colors">      — 01, luôn có
-    <section id="typography">  — 02, luôn có
-    <section id="components">  — 03, Button Variants, luôn có
-    <section>...</section>     — các section tiếp theo, đánh số tiếp, tùy theo DESIGN.md có component gì
-    <section id="responsive">  — luôn là section cuối cùng trước footer
+    <nav>            — sticky, 3 columns (brand | anchor links | CTA)
+    <div class="hero"> — 2 columns: content (h1+p+2 CTA) | art (code mockup or visual)
+    <section id="colors">      — 01, always present
+    <section id="typography">  — 02, always present
+    <section id="components">  — 03, Button Variants, always present
+    <section>...</section>     — subsequent sections, numbered onward, depending on what components DESIGN.md has
+    <section id="responsive">  — always the last section before the footer
     <footer>
   </body>
 </html>
 ```
 
-File là **self-contained**: toàn bộ CSS nằm trong 1 thẻ `<style>`, không có JS logic (trừ khi người dùng yêu cầu tương tác thật), không phụ thuộc framework ngoài — vì mục đích là để AI agent khác đọc file này và hiểu design system, không phải để deploy làm website thật.
+The file is **self-contained**: all CSS lives in a single `<style>` tag, no JS logic (unless the user explicitly requests real interactivity), no external framework dependency — because the purpose is for another AI agent to read this file and understand the design system, not to deploy it as a real website.
 
-## 2. Ánh xạ token DESIGN.md → CSS variable
+## 2. DESIGN.md token → CSS variable mapping
 
-| DESIGN.md token | CSS variable gợi ý | Ghi chú |
+| DESIGN.md token | Suggested CSS variable | Note |
 |---|---|---|
-| `colors.primary` | `--primary` | Màu CTA chính |
-| `colors.<tên khác>` (secondary, tertiary, accent-*...) | `--<tên>` | Giữ nguyên tên token làm tên biến để agent đọc code sau này khớp trực tiếp với DESIGN.md |
-| Trạng thái pressed/hover/active nếu component có định nghĩa | `--<tên>-active` / `--<tên>-hover` | |
-| Màu chữ đặt trên nền màu đó | `--on-<tên>` | vd `--on-primary` |
-| Nền chính (thường là `colors.neutral` hoặc `canvas`) | `--canvas` | |
-| Các biến thể nền phụ | `--surface`, `--surface-soft`, `--surface-card`, `--surface-dark`... | Số lượng tùy theo DESIGN.md định nghĩa bao nhiêu surface token |
-| Đường viền mảnh | `--hairline`, `--hairline-soft` | Nếu DESIGN.md không có sẵn, suy ra từ màu neutral làm mờ nhẹ |
-| Text hierarchy | `--ink` (chữ chính), `--body`, `--muted`, `--muted-soft` | |
-| `typography.<tên>.fontFamily` (display/heading) | `--display` | font-stack đầy đủ kèm fallback |
-| `typography.<tên>.fontFamily` (body) | `--text` | |
-| Font code/mono nếu có | `--mono` | Nếu DESIGN.md không khai báo, mặc định `ui-monospace, 'JetBrains Mono', monospace` |
-| `rounded.*` | dùng trực tiếp trong class (`.btn { border-radius: var(--radius-md) }`) nếu cần biến, hoặc numeric literal nếu chỉ dùng 1 lần | |
-| `spacing.*` | dùng trong section 10 "Spacing Scale" để minh họa trực quan | |
+| `colors.primary` | `--primary` | Main CTA color |
+| `colors.<other name>` (secondary, tertiary, accent-*...) | `--<name>` | Keep the original token name as the variable name so an agent reading the code later maps directly back to DESIGN.md |
+| pressed/hover/active states if the component defines them | `--<name>-active` / `--<name>-hover` | |
+| Text color placed on that color's background | `--on-<name>` | e.g. `--on-primary` |
+| Main background (usually `colors.neutral` or `canvas`) | `--canvas` | |
+| Secondary background variants | `--surface`, `--surface-soft`, `--surface-card`, `--surface-dark`... | The count depends on how many surface tokens DESIGN.md defines |
+| Hairline border | `--hairline`, `--hairline-soft` | If DESIGN.md doesn't have one, derive it as a lightly muted neutral color |
+| Text hierarchy | `--ink` (main text), `--body`, `--muted`, `--muted-soft` | |
+| `typography.<name>.fontFamily` (display/heading) | `--display` | Full font stack with fallback |
+| `typography.<name>.fontFamily` (body) | `--text` | |
+| Code/mono font if present | `--mono` | If DESIGN.md doesn't declare one, default to `ui-monospace, 'JetBrains Mono', monospace` |
+| `rounded.*` | Use directly in a class (`.btn { border-radius: var(--radius-md) }`) if a variable is needed, or as a numeric literal if used only once | |
+| `spacing.*` | Used in section 10 "Spacing Scale" to illustrate visually | |
 
-Nếu DESIGN.md thiếu token nào (vd không có `secondary`), KHÔNG tự bịa ra một token mới không có căn cứ — hỏi người dùng hoặc suy luận hợp lý từ palette đã có (vd làm variant sáng/tối hơn của primary) và ghi chú rõ trong phần "rationale" của section đó rằng đây là suy luận, không phải token gốc.
+If DESIGN.md is missing a token (e.g. no `secondary`), do NOT invent a new token with no basis — ask the user, or derive a reasonable one from the existing palette (e.g. a lighter/darker variant of primary) and note clearly in that section's "rationale" that this is an inference, not an original token.
 
-## 3. Danh mục section
+## 3. Section catalog
 
-### Section lõi — LUÔN xuất hiện, đúng thứ tự này:
+### Core sections — ALWAYS present, in this exact order:
 
-| # | id/section-label | Nội dung | Class chính |
+| # | id/section-label | Content | Main classes |
 |---|---|---|---|
-| 01 | Color Palette | Nhóm màu theo group (Brand/Accent, Surface, Text) — mỗi màu 1 `.swatch` gồm khối màu + tên + hex + role | `.palette-group`, `.palette-grid`, `.swatch`, `.swatch-color`, `.swatch-meta`, `.swatch-name`, `.swatch-hex`, `.swatch-role` |
-| 02 | Typography Scale | Mỗi dòng: metadata (tên scale, size/weight/line-height/letter-spacing) bên trái, câu ví dụ render thật bên phải | `.type-row`, `.type-meta`, `.type-sample` |
-| 03 | Button Variants | Mọi biến thể button định nghĩa trong `components` của DESIGN.md: primary, primary-active, primary-disabled, secondary, secondary-on-dark, text-link, icon-circular... | `.button-grid`, `.button-cell`, `.button-label`, `.btn` + class biến thể, `.button-meta` |
-| xx | Cards & Containers | Card cơ bản (feature card), card đặc thù theo domain sản phẩm (code mockup nếu là dev tool, testimonial nếu là B2B SaaS...) | `.card-grid`, `.feature-card` |
-| xx | Spacing Scale | Thanh trực quan cho từng bậc spacing | `.spacing-row`, `.spacing-block`, `.spacing-bar`, `.spacing-label` |
-| xx | Border Radius Scale | Ô vuông minh họa từng bậc bo góc | `.radius-row`, `.radius-block` |
-| xx | Elevation & Depth | Card minh họa các tầng elevation/nền khác nhau | `.elevation-grid`, `.elevation-card` |
-| xx (cuối cùng) | Responsive Behavior | Bảng breakpoint + thang thiết bị trực quan + ghi chú touch target/collapsing strategy | `.responsive-table`, `.device-ladder`, `.device-bar`, `.responsive-sub` |
+| 01 | Color Palette | Colors grouped (Brand/Accent, Surface, Text) — each color is one `.swatch` with a color block + name + hex + role | `.palette-group`, `.palette-grid`, `.swatch`, `.swatch-color`, `.swatch-meta`, `.swatch-name`, `.swatch-hex`, `.swatch-role` |
+| 02 | Typography Scale | Each row: metadata (scale name, size/weight/line-height/letter-spacing) on the left, a real rendered example sentence on the right | `.type-row`, `.type-meta`, `.type-sample` |
+| 03 | Button Variants | Every button variant defined in DESIGN.md's `components`: primary, primary-active, primary-disabled, secondary, secondary-on-dark, text-link, icon-circular... | `.button-grid`, `.button-cell`, `.button-label`, `.btn` + variant class, `.button-meta` |
+| xx | Cards & Containers | A basic card (feature card), plus a domain-specific card if relevant (code mockup for a dev tool, testimonial for a B2B SaaS...) | `.card-grid`, `.feature-card` |
+| xx | Spacing Scale | A visual bar for each spacing step | `.spacing-row`, `.spacing-block`, `.spacing-bar`, `.spacing-label` |
+| xx | Border Radius Scale | A square illustrating each radius step | `.radius-row`, `.radius-block` |
+| xx | Elevation & Depth | Cards illustrating different elevation/background layers | `.elevation-grid`, `.elevation-card` |
+| xx (last) | Responsive Behavior | Breakpoint table + visual device ladder + notes on touch target/collapsing strategy | `.responsive-table`, `.device-ladder`, `.device-bar`, `.responsive-sub` |
 
-### Section tùy chọn — thêm vào NẾU DESIGN.md có định nghĩa component tương ứng, hoặc người dùng yêu cầu cụ thể:
+### Optional sections — add IF DESIGN.md defines the corresponding component, or the user specifically requests it:
 
-- **Badges & Status** — nếu có badge/pill/status token.
-- **Forms & Inputs** — nếu sản phẩm có form (input, focus state).
-- **Pricing Tiers** — nếu là SaaS có pricing.
-- **Coral/Accent Callout Card** (CTA banner full-bleed) — nếu brand có mẫu callout nổi bật.
-- **Connector/Service Tiles** — nếu có danh sách tích hợp/dịch vụ dạng lưới nhỏ.
-- **Tabs & Navigation** — nếu có tab UI.
-- **Code Mockup Card** — chỉ thêm nếu đây là sản phẩm dev-facing (API, SDK...).
-- **Testimonials / Logo Wall / FAQ Accordion** — nếu là trang marketing B2B.
+- **Badges & Status** — if there's a badge/pill/status token.
+- **Forms & Inputs** — if the product has forms (input, focus state).
+- **Pricing Tiers** — if it's a SaaS with pricing.
+- **Coral/Accent Callout Card** (full-bleed CTA banner) — if the brand has a prominent callout pattern.
+- **Connector/Service Tiles** — if there's a list of integrations/services as a small grid.
+- **Tabs & Navigation** — if there's tab UI.
+- **Code Mockup Card** — only add if this is a dev-facing product (API, SDK...).
+- **Testimonials / Logo Wall / FAQ Accordion** — if it's a B2B marketing page.
 
-Không thêm section tùy chọn một cách máy móc cho mọi brand — chỉ thêm khi có căn cứ từ DESIGN.md (component đã định nghĩa) hoặc từ yêu cầu người dùng. Một design system tối giản (ví dụ chỉ có button + card) không cần ép đủ 13-17 section như 2 file mẫu.
+Don't mechanically add optional sections for every brand — only add when there's justification from DESIGN.md (a defined component) or from a user request. A minimal design system (e.g. just button + card) doesn't need to be forced up to 13-17 sections like the two example files.
 
-## 4. Pattern chi tiết từng phần dùng lại
+## 4. Reusable detail patterns
 
-**Section header pattern** (áp dụng cho mọi section):
+**Section header pattern** (applies to every section):
 ```html
 <section id="...">
   <div class="section-label">03 — Button Variants</div>
-  <h2 class="section-heading">Tiêu đề ngắn mô tả phong cách</h2>
-  <p class="section-intro">1-2 câu giải thích RATIONALE — tại sao chọn cách phối này, không chỉ liệt kê lại giá trị.</p>
-  ... nội dung ...
+  <h2 class="section-heading">Short title describing the style</h2>
+  <p class="section-intro">1-2 sentences explaining the RATIONALE — why this pairing was chosen, not just restating the values.</p>
+  ... content ...
 </section>
 ```
-Số thứ tự phải liên tục, không nhảy số, không trùng số khi thêm section mới về sau (xem mục 6).
+Numbering must be continuous, no skipped numbers, no duplicate numbers when adding a new section later (see item 6).
 
 **Nav pattern**:
 ```html
@@ -107,25 +107,25 @@ Số thứ tự phải liên tục, không nhảy số, không trùng số khi t
   <button class="nav-cta">...</button>
 </nav>
 ```
-Anchor link trong `.nav-links` phải khớp đúng `id` của các section chính (tối thiểu: colors, typography, components, responsive).
+Anchor links in `.nav-links` must match the `id` of the main sections (at minimum: colors, typography, components, responsive).
 
-**Hero pattern**: grid 2 cột (nội dung trái, minh họa phải). Minh họa bên phải nên là 1 trong 2 dạng: (a) code mockup dạng terminal nếu sản phẩm dev-facing, hoặc (b) khối màu/hình minh họa phong cách nếu là brand tiêu dùng — quyết định dựa trên bản chất sản phẩm mô tả trong DESIGN.md.
+**Hero pattern**: a 2-column grid (content left, illustration right). The right-side illustration should be one of 2 forms: (a) a terminal-style code mockup if the product is dev-facing, or (b) a stylistic color/shape illustration if it's a consumer brand — decide based on the nature of the product described in DESIGN.md.
 
-**Responsive breakpoints**: dùng đúng 2 mốc `@media (max-width: 1024px)` và `@media (max-width: 720px)`, mỗi mốc thu gọn grid về ít cột hơn, ẩn phần trang trí không thiết yếu, giảm font-size heading.
+**Responsive breakpoints**: use exactly the 2 breakpoints `@media (max-width: 1024px)` and `@media (max-width: 720px)`, each collapsing the grid to fewer columns, hiding non-essential decoration, reducing heading font-size.
 
-## 5. Yêu cầu chất lượng (frontend-design)
+## 5. Quality requirement (frontend-design)
 
-File `design-system.html` là sản phẩm hiển thị (visual output), không phải chỉ là dữ liệu — nó phải THỰC SỰ trông đẹp, đúng cá tính brand trong DESIGN.md, không phải bản demo xám xịt. Xem `SKILL.md` mục Bước 3 (Chế độ A) để biết quy trình brainstorm + tự phản biện đầy đủ trước khi build.
+`design-system.html` is a visual output, not just data — it must ACTUALLY look good and match the brand personality in DESIGN.md, not be a flat, generic demo. See `SKILL.md`'s Step 3 (Mode A) for the full brainstorm + self-critique process before building.
 
-**Lưu ý quan trọng**: mọi pattern mô tả trong tài liệu này (section đánh số 01/02/03, hairline border, `.section-label` uppercase) là rút ra từ 2 file mẫu cụ thể — chúng tiện dùng làm điểm khởi đầu về mặt CẤU TRÚC (skeleton, class naming, breakpoint), nhưng KHÔNG phải là công thức thẩm mỹ bắt buộc. Cách đánh số + hairline này là 1 trong các "look mặc định" mà skill `frontend-design:frontend-design` (gọi qua tool `Skill`) khuyến cáo nên tự hỏi lại trước khi dùng. Khi DESIGN.md mô tả 1 brand có cá tính khác (không editorial/broadsheet), có thể và nên thay đổi cách trình bày header section (bỏ số, đổi typographic treatment, đổi cách phân tách section) miễn là vẫn giữ đúng bộ khung dữ liệu (đủ token, đủ section nội dung, đúng ánh xạ biến CSS ở mục 2).
+**Important note**: every pattern described in this document (01/02/03 numbered sections, hairline borders, uppercase `.section-label`) is derived from 2 specific example files — they're a convenient starting point STRUCTURALLY (skeleton, class naming, breakpoints), but they are NOT a mandatory aesthetic formula. This numbering + hairline style is one of the "default looks" the `frontend-design:frontend-design` skill (called via the `Skill` tool) recommends questioning before using. When DESIGN.md describes a brand with a different personality (not editorial/broadsheet), it's fine — and often better — to change how section headers are presented (drop the numbering, change the typographic treatment, change how sections are separated) as long as the underlying data scaffold is preserved (enough tokens, enough content sections, correct CSS variable mapping per item 2).
 
-## 6. Quy tắc khi BỔ SUNG component/section vào file đã có
+## 6. Rules for ADDING a component/section to an existing file
 
-Khi người dùng yêu cầu thêm 1 component hoặc UI mới vào `design-system.html` đã tồn tại:
+When the user asks to add a new component or UI to an existing `design-system.html`:
 
-1. Đọc lại DESIGN.md liên quan (nếu component mới cần token chưa có trong DESIGN.md — ví dụ thêm 1 màu mới — phải hỏi người dùng có muốn cập nhật DESIGN.md trước, hoặc dùng token đã có sẵn để suy ra, không tự bịa màu ngoài palette).
-2. Đọc file `design-system.html` hiện có để lấy đúng: tên biến CSS đang dùng (`:root`), quy ước class hiện tại, số thứ tự section cuối cùng.
-3. Section mới chèn vào TRƯỚC section "Responsive Behavior" (section responsive luôn ở cuối cùng) và được đánh số tiếp theo số cuối cùng hiện có +1.
-4. Style của component mới thêm vào cuối khối `<style>` hiện có (không tạo `<style>` thứ 2), dùng lại đúng biến CSS `:root` đã có — không định nghĩa lại màu bằng mã hex trực tiếp.
-5. Nếu section mới đủ quan trọng để cần truy cập nhanh, thêm 1 mục vào `.nav-links` trỏ tới `id` mới — nhưng không bắt buộc với mọi component nhỏ.
-6. Sau khi chèn, xem lại toàn bộ để đảm bảo không phá vỡ layout ở các breakpoint responsive đã có (section mới cần kế thừa đúng pattern grid/gap của các section cùng loại).
+1. Re-read the relevant DESIGN.md (if the new component needs a token not yet in DESIGN.md — e.g. adding a new color — ask the user whether to update DESIGN.md first, or derive it from an existing token; never invent a color outside the palette).
+2. Read the existing `design-system.html` to get exactly: the CSS variable names currently used (`:root`), current class conventions, the last section number.
+3. Insert the new section BEFORE the "Responsive Behavior" section (responsive is always last), numbered as the current last number + 1.
+4. Add the new component's style to the end of the existing `<style>` block (don't create a 2nd `<style>` block), reusing the existing `:root` CSS variables — don't redefine colors with raw hex.
+5. If the new section is important enough to need quick access, add an entry to `.nav-links` pointing to the new `id` — but this isn't required for every small component.
+6. After inserting, review everything to make sure it doesn't break the existing responsive breakpoints (the new section needs to inherit the correct grid/gap pattern from sections of the same type).

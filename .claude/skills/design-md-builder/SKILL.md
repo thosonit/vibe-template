@@ -5,87 +5,87 @@ description: Build, lint, fix, and export DESIGN.md files — Google's open form
 
 # DESIGN.md Builder
 
-Xây dựng file `DESIGN.md` đúng chuẩn đặc tả mở của Google (`google-labs-code/design.md`, hiện ở `version: alpha`) — file mô tả hệ thống thiết kế (design tokens + rationale) cho AI coding agent đọc và tạo UI nhất quán.
+Build a `DESIGN.md` file that conforms to Google's open spec (`google-labs-code/design.md`, currently `version: alpha`) — a file describing a design system (design tokens + rationale) for AI coding agents to read and produce UI consistently.
 
-Quy trình có 4 bước cố định. Không bỏ qua bước lint — đó là bước đảm bảo file thực sự hợp lệ theo spec, không chỉ "trông giống".
+The workflow has 4 fixed steps. Don't skip the lint step — it's what guarantees the file is actually valid per spec, not just "looks right."
 
-## Bước 1 — Hỏi mong muốn của người dùng
+## Step 1 — Ask what the user wants
 
-Trước khi viết bất kỳ dòng token nào, cần nắm được các thông tin cốt lõi. Nếu người dùng đã cung cấp sẵn trong yêu cầu (ví dụ đã đưa mã màu, tên brand, phong cách...), đừng hỏi lại — chỉ hỏi phần còn thiếu.
+Before writing any token, gather the core information. If the user already provided it in their request (e.g. color codes, brand name, style...), don't ask again — only ask for what's missing.
 
-Dùng `ask_user_input_v0` để thu thập nhanh (người dùng chọn nút thay vì gõ), tối đa 3 câu hỏi/lần gọi. Ưu tiên hỏi theo nhóm sau, có thể chia làm 2 lượt gọi nếu cần:
+Use `AskUserQuestion` to gather this quickly (the user picks from options instead of typing), at most 3 questions per call. Prioritize asking in these groups, splitting into 2 calls if needed:
 
-**Lượt 1 — định hướng phong cách:**
-- Tên/thương hiệu của design system này là gì? (nếu chưa có tên, đề xuất cho họ chọn hoặc để trống rồi tự đặt tên gợi tả)
-- Vibe/phong cách tổng thể: ví dụ Minimalist/Editorial, Playful/Vibrant, Corporate/Trust, Dark & Techy, Warm & Organic... (hỏi qua `ask_user_input_v0` dạng single_select với vài lựa chọn gợi ý + để họ mô tả thêm bằng câu tự do nếu muốn)
-- Có brand màu/logo sẵn có cần bám theo không, hay để Claude đề xuất palette mới?
+**Round 1 — style direction:**
+- What's the name/brand of this design system? (if there's no name yet, offer suggestions or leave it blank and pick a descriptive name yourself)
+- Overall vibe/style: e.g. Minimalist/Editorial, Playful/Vibrant, Corporate/Trust, Dark & Techy, Warm & Organic... (ask via `AskUserQuestion` as a single-select with a few suggested options, plus room for them to describe further in free text if they want)
+- Is there an existing brand color/logo to follow, or should Claude propose a new palette?
 
-**Lượt 2 — chi tiết kỹ thuật (nếu người dùng có vẻ rành kỹ thuật hoặc dự án đã có sẵn stack):**
-- Có đang dùng Tailwind, hay framework CSS nào cụ thể không? (ảnh hưởng tới việc có nên chuẩn bị sẵn để export sau)
-- Có component cụ thể nào cần định nghĩa token riêng ngay từ đầu không (button, card, input...) hay để mặc định vài component phổ biến?
-- Font chữ ưu tiên (nếu có), hay để Claude đề xuất theo vibe đã chọn?
+**Round 2 — technical detail (if the user seems technical or the project already has a stack):**
+- Are they using Tailwind, or any specific CSS framework? (affects whether to prepare for a later export)
+- Are there specific components that need their own tokens defined up front (button, card, input...), or should a few common ones be defaulted?
+- Preferred typefaces (if any), or should Claude propose based on the chosen vibe?
 
-Nếu người dùng chỉ nói kiểu "làm giúp tôi 1 file DESIGN.md cho app fintech nghiêm túc" — đây đã đủ ngữ cảnh để suy luận hợp lý (nghiêm túc/trust → neutral + 1 accent, sans-serif rõ ràng). Hỏi tối thiểu 1 câu để xác nhận thay vì hỏi dồn dập, rồi tiến hành với giả định hợp lý, nêu rõ giả định đó trong câu trả lời.
+If the user just says something like "build me a DESIGN.md for a serious fintech app" — that's already enough context for a reasonable inference (serious/trust → neutral + one accent, clear sans-serif). Ask at most one confirming question instead of a barrage, then proceed with a reasonable assumption, stating that assumption clearly in the response.
 
-## Bước 2 — Xây dựng file DESIGN.md
+## Step 2 — Build the DESIGN.md file
 
-Đọc `references/spec.md` (đặc tả đầy đủ đã được tóm gọn) trước khi viết file nếu đây là lần đầu trong phiên làm việc, để đảm bảo bám sát:
+Read `references/spec.md` (the condensed full spec) before writing the file if this is the first time in this session, to make sure you stick to:
 
-- **Token schema** đúng field: `version`, `name`, `description`, `colors`, `typography`, `rounded`, `spacing`, `components`.
-- **colors** phải có ít nhất token `primary` (nếu thiếu, linter sẽ cảnh báo và agent khác sẽ tự bịa màu).
-- **typography** nên có ít nhất 1-2 token (ví dụ `h1`, `body-md`) — thiếu hoàn toàn sẽ khiến agent dùng font mặc định.
-- **components** nên tham chiếu ngược lại `colors`/`typography`/`rounded` bằng cú pháp `{colors.primary}` thay vì lặp giá trị thô — tránh bị cảnh báo `orphaned-tokens` và giữ file dễ bảo trì khi đổi màu.
-- **Thứ tự section markdown** (`##`) PHẢI theo đúng: Overview → Colors → Typography → Layout → Elevation & Depth → Shapes → Components → Do's and Don'ts. Có thể bỏ qua section nào không cần thiết, nhưng không được đảo thứ tự các section đã chọn viết.
-- Mỗi section nên có 2-5 câu/gạch đầu dòng giải thích **lý do** (why), không chỉ liệt kê lại giá trị token đã có trong YAML — đó là điểm khác biệt giữa DESIGN.md tốt và DESIGN.md hời hợt.
-- Viết file bằng `create_file` vào `/mnt/user-data/outputs/DESIGN.md` (hoặc tên khác nếu người dùng có nhiều design system trong cùng dự án, ví dụ `DESIGN-dark.md`).
+- **Token schema** with the correct fields: `version`, `name`, `description`, `colors`, `typography`, `rounded`, `spacing`, `components`.
+- **colors** must have at least a `primary` token (if missing, the linter will warn and other agents will invent a color).
+- **typography** should have at least 1-2 tokens (e.g. `h1`, `body-md`) — leaving it out entirely will make agents fall back to default fonts.
+- **components** should reference back to `colors`/`typography`/`rounded` using `{colors.primary}` syntax instead of repeating raw values — this avoids `orphaned-tokens` warnings and keeps the file maintainable when colors change.
+- **Markdown section order** (`##`) MUST follow: Overview → Colors → Typography → Layout → Elevation & Depth → Shapes → Components → Do's and Don'ts. Any section can be skipped if not needed, but the sections that are written must not be reordered.
+- Each section should have 2-5 sentences/bullets explaining the **why**, not just restating the token values already in the YAML — that's what separates a good DESIGN.md from a shallow one.
+- Write the file with `Write` to `docs/design/DESIGN.md` (or a different name if the user has multiple design systems in the same project, e.g. `DESIGN-dark.md`).
 
-## Bước 3 — Lint và tự sửa
+## Step 3 — Lint and self-fix
 
-Đây là bước bắt buộc, không tự đánh giá "chắc đúng rồi" bằng mắt — luôn chạy linter thật:
-
-```bash
-npx -y @google/design.md lint /mnt/user-data/outputs/DESIGN.md 2>&1 | grep -v "npm error config prefix"
-```
-
-(Dòng `npm error config prefix cannot be changed...` là nhiễu vô hại từ môi trường sandbox, không phải lỗi thật — luôn lọc bỏ dòng đó khi đọc output, đừng hiểu nhầm thành lỗi của file.)
-
-Kết quả trả về JSON gồm `findings[]` (mỗi finding có `severity`: `error`/`warning`/`info`) và `summary`. Xử lý theo severity:
-
-- **`error`** (ví dụ `broken-ref` — token reference trỏ tới token không tồn tại): PHẢI sửa ngay bằng `str_replace`, đây là lỗi làm file không hợp lệ.
-- **`warning`**: nên sửa nếu hợp lý (ví dụ `missing-primary`, `missing-typography`, `contrast-ratio` dưới chuẩn WCAG AA 4.5:1, `section-order` sai thứ tự, `unknown-key` — có thể là lỗi gõ nhầm như `colours:` thay vì `colors:`). Với `orphaned-tokens` (màu định nghĩa nhưng không component nào dùng), cân nhắc: nếu là màu semantic dự phòng (success/warning/error) có thể giữ nguyên và giải thích trong response, không bắt buộc phải xóa hay gán gượng ép vào component.
-- **`info`**: chỉ mang tính tham khảo (ví dụ `token-summary`), không cần hành động.
-
-Sau khi sửa, chạy lại lint để xác nhận `errors: 0`. Lặp lại tối đa vài lần cho tới khi sạch lỗi. Nếu còn warning có chủ đích giữ lại, nói rõ với người dùng lý do thay vì im lặng bỏ qua.
-
-Tóm tắt ngắn gọn kết quả lint cho người dùng (số lỗi/cảnh báo đã sửa, còn gì giữ nguyên và vì sao) — không dán nguyên JSON thô vào câu trả lời.
-
-## Bước 4 — Xuất sang định dạng khác (chỉ khi được yêu cầu)
-
-Không tự động thực hiện bước này trừ khi người dùng hỏi hoặc đã cho biết stack của họ ở Bước 1 (ví dụ "tôi dùng Tailwind"). Nếu có tín hiệu đó, có thể chủ động hỏi 1 câu ngắn gọn kiểu "Bạn có muốn mình xuất luôn sang Tailwind config không?" thay vì tự ý xuất file thừa.
-
-Các lệnh export:
+This step is mandatory — don't eyeball it and assume "probably fine," always run the real linter:
 
 ```bash
-# Tailwind v4 (CSS @theme block) — phổ biến nhất cho dự án mới
-npx -y @google/design.md export --format css-tailwind /mnt/user-data/outputs/DESIGN.md > /mnt/user-data/outputs/theme.css
-
-# Tailwind v3 (theme.extend JSON, dùng trong tailwind.config.js)
-npx -y @google/design.md export --format json-tailwind /mnt/user-data/outputs/DESIGN.md > /mnt/user-data/outputs/tailwind.theme.json
-
-# W3C DTCG tokens.json — dùng khi cần tương thích Figma Variables / Storybook
-npx -y @google/design.md export --format dtcg /mnt/user-data/outputs/DESIGN.md > /mnt/user-data/outputs/tokens.json
+npx -y @google/design.md lint docs/design/DESIGN.md 2>&1 | grep -v "npm error config prefix"
 ```
 
-Sau khi export, dùng `present_files` để đưa (các) file kết quả cho người dùng — luôn kèm cả `DESIGN.md` gốc lẫn file export, không chỉ file export đơn lẻ.
+(The line `npm error config prefix cannot be changed...` is harmless sandbox-environment noise, not a real error — always filter it out when reading the output, don't mistake it for a file error.)
 
-Nếu người dùng muốn so sánh với phiên bản cũ (đã sửa design system trước đó), dùng lệnh `diff`:
+The result is JSON with `findings[]` (each finding has a `severity`: `error`/`warning`/`info`) and a `summary`. Handle by severity:
+
+- **`error`** (e.g. `broken-ref` — a token reference pointing to a token that doesn't exist): MUST be fixed immediately with `Edit` — this makes the file invalid.
+- **`warning`**: fix if it makes sense (e.g. `missing-primary`, `missing-typography`, `contrast-ratio` below the WCAG AA 4.5:1 threshold, `section-order` out of sequence, `unknown-key` — possibly a typo like `colours:` instead of `colors:`). For `orphaned-tokens` (a color defined but not used by any component), consider: if it's a reserved semantic color (success/warning/error), it's fine to keep as-is and explain in the response — no need to delete it or force it onto a component.
+- **`info`**: reference only (e.g. `token-summary`), no action needed.
+
+After fixing, re-run lint to confirm `errors: 0`. Repeat up to a few times until clean. If any warning is deliberately kept, tell the user why instead of silently ignoring it.
+
+Summarize the lint result briefly for the user (how many errors/warnings were fixed, what was kept and why) — don't paste the raw JSON into the response.
+
+## Step 4 — Export to other formats (only when requested)
+
+Don't do this automatically unless the user asks, or already told you their stack in Step 1 (e.g. "I use Tailwind"). If that signal is there, you can proactively ask a short question like "Want me to export this to a Tailwind config too?" instead of exporting extra files unprompted.
+
+Export commands:
+
+```bash
+# Tailwind v4 (CSS @theme block) — most common for new projects
+npx -y @google/design.md export --format css-tailwind docs/design/DESIGN.md > docs/design/theme.css
+
+# Tailwind v3 (theme.extend JSON, used in tailwind.config.js)
+npx -y @google/design.md export --format json-tailwind docs/design/DESIGN.md > docs/design/tailwind.theme.json
+
+# W3C DTCG tokens.json — for Figma Variables / Storybook compatibility
+npx -y @google/design.md export --format dtcg docs/design/DESIGN.md > docs/design/tokens.json
+```
+
+After exporting, tell the user which file(s) were written — always mention both the original `DESIGN.md` and the export file, not just the export in isolation.
+
+If the user wants to compare against an older version (a previously edited design system), use the `diff` command:
 
 ```bash
 npx -y @google/design.md diff DESIGN-v1.md DESIGN-v2.md 2>&1 | grep -v "npm error config prefix"
 ```
 
-## Ghi chú quan trọng
+## Important notes
 
-- Định dạng đang ở `version: alpha` — có thể thay đổi. Nếu lệnh CLI trả về lỗi lạ không khớp với `references/spec.md`, khả năng cao package đã cập nhật; cân nhắc chạy `npx -y @google/design.md spec --rules` để lấy spec mới nhất trực tiếp từ CLI thay vì chỉ tin vào tài liệu tĩnh.
-- Không cần cài đặt package trước — luôn dùng `npx -y @google/design.md ...`, package sẽ tự tải từ npm registry (đã được whitelist trong môi trường).
-- Nếu người dùng chỉ muốn xem/hiểu spec chứ chưa muốn tạo file, có thể trả lời trực tiếp từ `references/spec.md` mà không cần chạy CLI hay tạo file.
+- The format is currently `version: alpha` and may change. If the CLI returns an unexpected error that doesn't match `references/spec.md`, the package has likely been updated; consider running `npx -y @google/design.md spec --rules` to get the latest spec directly from the CLI instead of trusting the static doc alone.
+- No need to install the package beforehand — always use `npx -y @google/design.md ...`, it will fetch from the npm registry automatically.
+- If the user only wants to see/understand the spec and doesn't want a file created yet, you can answer directly from `references/spec.md` without running the CLI or creating a file.
