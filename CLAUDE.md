@@ -49,7 +49,7 @@ Per feature/task, in order:
 3. **Design UI** (optional — only if the task has UI)
    - Skill: `frontend-design`
    - Output: `docs/screens/FEATURE-CODE-screen-name-00.screen.md` + paired `.screen.html` prototype
-   - Notes: must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`. The `.html` prototype is the visual source of truth for that screen — strictly follow it (layout, spacing, states) before writing new UI markup/styles. Render the actual screen's full UI as it appears in the real app (full-viewport, no doc-preview chrome — no outer page header or top bar). All states the screen spec defines (default, loading, error variants, empty, etc.) live on that one real layout, switched via a floating, collapsible panel pinned to a screen corner — not side-by-side duplicate cards.
+   - Notes: must follow `docs/design/DESIGN.md` and `docs/design/design-system.html`. The `.screen.html` prototype is the visual source of truth for that screen — strictly follow it (layout, spacing, states) before writing new UI markup/styles. Render the actual screen's full UI as it appears in the real app (full-viewport, no doc-preview chrome — no outer page header or top bar). All states the screen spec defines (default, loading, error variants, empty, etc.) live on that one real layout, switched via a floating, collapsible panel pinned to a screen corner — not side-by-side duplicate cards.
 
 4. **Define Plan**
    - Skill: `superpowers:writing-plans` (or the `planner` agent)
@@ -59,7 +59,7 @@ Per feature/task, in order:
 5. **Implement**
    - Skill: `superpowers:executing-plans` (or `superpowers:subagent-driven-development` for independent tasks)
    - Output: working code matching the plan
-   - Notes: must strictly comply with the architecture file matching the sub-project's stack — no deviating from its patterns/structure without confirming first. UI implementation must strictly match the screen's `docs/screens/FEATURE-CODE-screen-name-00.screen.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first. Check off the checkbox in the plan file right after finishing each step. If scope diverges, update the core docs and task spec draft to match before Code Review.
+   - Notes: must strictly comply with the architecture file matching the sub-project's stack, and with the screen's `docs/screens/FEATURE-CODE-screen-name-00.screen.html` prototype plus `docs/design/design-system.html` and `docs/design/DESIGN.md` for UI — no deviating on architecture patterns/structure, layout, spacing, tokens, or component states without confirming first. Check off the checkbox in the plan file right after finishing each step. If scope diverges, update the core docs and task spec draft to match before Code Review.
 
 6. **Code Review** (require)
    - Skill: `superpowers:requesting-code-review`
