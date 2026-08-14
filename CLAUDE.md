@@ -14,7 +14,7 @@ docs/                # Core reference documentation — single source of truth, 
 ├── specs/           # CODE-feature-name.spec.md + spec.md (overview)
 ├── api/             # api.md (conventions/index) + endpoints/*.md (one file per endpoint group)
 ├── database/        # db.md — single shared schema/ERD/migration notes doc for the whole project
-├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .html prototype + screen.md (overview)
+├── screens/         # FEATURE-CODE-screen-name-00.screen.md + paired .screen.html prototype + screen.md (overview)
 ├── design/          # DESIGN.md + design-system.html
 └── superpowers/     # Per-task artifacts (superpowers plugin defaults), separate from core docs
     ├── specs/       # YYYY-MM-DD-task-name.spec.md — task spec draft (step 1, Brainstorm)
@@ -24,13 +24,14 @@ tests/               # Unit / integration / e2e tests (not used by this project 
 
 ### Naming Convention
 
-- `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ db ↔ branch ↔ commit.
+- `CODE` is a short uppercase identifier for a feature area (e.g. `AUTH`, `PAY`), used consistently across spec ↔ commit.
 - Core spec (single source of truth for what a feature does): `docs/specs/CODE-feature-name.spec.md` — only ever created/updated during step 2 (Sync Core Docs), never written directly at the start of a task.
 - Task spec draft: `docs/superpowers/specs/YYYY-MM-DD-task-name.spec.md` — written in step 1 (Brainstorm) for every task, new feature or change alike.
 - Plan: `docs/superpowers/plans/YYYY-MM-DD-task-name.md`, same task name as its spec draft. Files stay in place permanently once written — no working/archive move, git history is the record. Each task creates a new dated file rather than editing an old one — history stays linear.
 - DB notes: shared `docs/database/db.md`, extended in place per feature (no per-`CODE` file).
 - API notes: shared `docs/api/api.md` (conventions/index) + `docs/api/endpoints/*.md` per endpoint group (not per-`CODE`).
-- Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.html`.
+- Screen spec: `docs/screens/FEATURE-CODE-screen-name-00.screen.md`, always paired with a same-named `FEATURE-CODE-screen-name-00.screen.html`.
+- Overview files (`docs/specs/spec.md`, `docs/screens/screen.md`) are shared indexes that list/summarize the per-`CODE` specs or screens in that folder — updated whenever a spec or screen is added or changed, not per-task artifacts themselves.
 
 ## Develop Instructions
 
@@ -58,7 +59,7 @@ Per feature/task, in order:
 5. **Implement**
    - Skill: `superpowers:executing-plans` (or `superpowers:subagent-driven-development` for independent tasks)
    - Output: working code matching the plan
-   - Notes: follow the architecture file matching the sub-project's stack. UI implementation must strictly match the screen's `docs/screens/FEATURE-CODE-screen-name-00.screen.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first. Check off the checkbox in the plan file right after finishing each step. If scope diverges, update the core docs and task spec draft to match before Code Review.
+   - Notes: must strictly comply with the architecture file matching the sub-project's stack — no deviating from its patterns/structure without confirming first. UI implementation must strictly match the screen's `docs/screens/FEATURE-CODE-screen-name-00.screen.html` prototype, `docs/design/design-system.html`, and `docs/design/DESIGN.md` — do not deviate on layout, spacing, tokens, or component states without confirming first. Check off the checkbox in the plan file right after finishing each step. If scope diverges, update the core docs and task spec draft to match before Code Review.
 
 6. **Code Review** (require)
    - Skill: `superpowers:requesting-code-review`
@@ -80,4 +81,3 @@ Per feature/task, in order:
 - Use the `git-conventions` skill for git operations — GitFlow branch model + Conventional Commits.
 - Follow the naming convention and folder structure above; don't create new directory structures outside the defined `docs/` layout without confirming first.
 - Never read or print production secrets/config files (`.env`, `.env.production`, credentials, API keys, etc.). If a task seems to need one, ask the user instead of reading it directly.
-- Never place source code directly under `src/` — nest each sub-project under `src/<project-name>/` (e.g. `src/web/`, `src/mobile/`).
