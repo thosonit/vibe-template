@@ -9,39 +9,42 @@ Build a `DESIGN.md` file that conforms to Google's open spec (`google-labs-code/
 
 The workflow has 4 fixed steps. Don't skip the lint step — it's what guarantees the file is actually valid per spec, not just "looks right."
 
+## The template
+
+`references/design-md-template.md` is the project's canonical DESIGN.md (a HeroUI v3 based system, "Thoson Design System"). **Every new DESIGN.md starts from a copy of it** — don't write the structure from scratch. Read it in full before Step 2. What it fixes, and what you keep:
+
+- **Token families** (keep names): `primary` (brand) with `-foreground`, `-hover`, `-soft`, `-soft-foreground`; `focus`; neutrals `background`/`surface`/`surface-secondary`/`surface-tertiary`/`overlay`/`segment`/`field-*`/`default`/`muted`/`border`/`separator`/`backdrop`, each surface paired with its `-foreground`; status `success`/`warning`/`danger` with `-soft` and `-soft-foreground` (danger also `-hover`). HeroUI calls the brand family `accent`; here it is `primary` because the spec requires that key.
+- **Typography scale** by role (`headline-lg/md`, `title-md/sm`, `body-lg/md/sm`, `label-md/sm`, `micro`), **spacing** `xs`–`2xl` on a 4px base, **rounded** scale `sm`–`3xl` plus `tab-list` and `menu`.
+- **Components** in the front matter: one entry per variant/state (`button-primary`, `button-primary-hover`, `chip-soft`, `table-cell`, ...), every value a `{token}` reference, no raw colors.
+- **Body sections**, in spec order: Overview, Colors (role table + Dark theme table + "Changing the primary color" table), Typography (role table), Layout, Elevation & Depth (level table), Shapes (radius table), Components (grouped Actions / Forms / Content / Feedback / Overlays / Navigation / States / Motion), Do's and Don'ts. Each section is a role-to-token table or short bullets saying *which token for which case*, plus the rules that stop agents inventing values.
+
 ## Step 1 — Ask what the user wants
 
-Before writing any token, gather the core information. If the user already provided it in their request (e.g. color codes, brand name, style...), don't ask again — only ask for what's missing.
+Only the brand-specific parts of the template change, so ask only for those. If the user already gave them, don't ask again.
 
-Use `AskUserQuestion` to gather this quickly (the user picks from options instead of typing), at most 3 questions per call. Prioritize asking in these groups, splitting into 2 calls if needed:
+Use `AskUserQuestion`, at most 3 questions per call:
 
-**Round 1 — style direction:**
-- What's the name/brand of this design system? (if there's no name yet, offer suggestions or leave it blank and pick a descriptive name yourself)
-- Overall vibe/style: e.g. Minimalist/Editorial, Playful/Vibrant, Corporate/Trust, Dark & Techy, Warm & Organic... (ask via `AskUserQuestion` as a single-select with a few suggested options, plus room for them to describe further in free text if they want)
-- Is there an existing brand color/logo to follow, or should Claude propose a new palette?
+- **Name** of the design system (if none, pick a descriptive one).
+- **Primary (brand) color**: an existing brand hex, or let Claude propose one. If proposing, choose a shade dark enough that `primary-foreground` on it reaches 4.5:1.
+- **Font**: keep Inter (template default, single family), or a specific pairing. If the user wants a pairing, propose one from Google Fonts that fits the vibe and update every `fontFamily` and the font-loading sentence in Typography.
+- **Icon set**: default **Lucide** (the template's Do's rule) unless the project already has an icon package installed — detect and reuse it, and rewrite the icon rule accordingly.
+- **Deviations from the template** (only if the user hints at them): different component set, different radius character (sharper/rounder), no dark theme, non-HeroUI base. Anything not mentioned stays as the template has it.
 
-**Round 2 — technical detail (if the user seems technical or the project already has a stack):**
-- Are they using Tailwind, or any specific CSS framework? (affects whether to prepare for a later export)
-- Are there specific components that need their own tokens defined up front (button, card, input...), or should a few common ones be defaulted?
-- Font pairing: a specific heading/body typeface pair, or should Claude propose one from Google Fonts based on the chosen vibe? (e.g. Editorial → a serif display + humanist sans body; Corporate/Trust → a single neutral grotesk like Inter/Public Sans across both; Playful → a rounded display font)
-- Icon collection: which icon set the codebase should standardize on — e.g. Lucide (default recommendation for most React/Next/Vue stacks — MIT-licensed, tree-shakeable, consistent 24px grid), Google Material Symbols (if the project already leans Material/Android), Phosphor (if the vibe calls for more weight variants), or Heroicons (if already on Tailwind UI). Skip asking if the codebase already has an icon package installed — just detect and reuse it.
-
-If the user doesn't answer these, default silently: propose a font pairing that fits the vibe, and default the icon collection to **Lucide** unless the project already has one installed — state both assumptions in the response instead of leaving them unstated.
-
-If the user just says something like "build me a DESIGN.md for a serious fintech app" — that's already enough context for a reasonable inference (serious/trust → neutral + one accent, clear sans-serif). Ask at most one confirming question instead of a barrage, then proceed with a reasonable assumption, stating that assumption clearly in the response.
+If the user doesn't answer, default silently (template values, teal primary, Inter, Lucide) and state those assumptions in the response.
 
 ## Step 2 — Build the DESIGN.md file
 
-Read `references/spec.md` (the condensed full spec) before writing the file if this is the first time in this session, to make sure you stick to:
+Read `references/spec.md` (the condensed spec) and `references/design-md-template.md` before writing.
 
-- **Token schema** with the correct fields: `version`, `name`, `description`, `colors`, `typography`, `rounded`, `spacing`, `components`.
-- **colors** must have at least a `primary` token (if missing, the linter will warn and other agents will invent a color).
-- **typography** should have at least 1-2 tokens (e.g. `h1`, `body-md`) — leaving it out entirely will make agents fall back to default fonts. Set `fontFamily` on each typography token to the chosen pairing (e.g. heading tokens use the display face, body tokens use the body face) rather than one font for everything unless the vibe calls for a single-family system.
-- **components** should reference back to `colors`/`typography`/`rounded` using `{colors.primary}` syntax instead of repeating raw values — this avoids `orphaned-tokens` warnings and keeps the file maintainable when colors change.
-- **Icon collection**: the spec has no dedicated `icons` token group, so record the choice as a `components.icon` entry (e.g. `components: { icon: { family: "lucide", size: "20px", strokeWidth: 1.5, color: "{colors.on-surface}" } }`) — this keeps it machine-readable for other agents instead of burying it only in prose. Also mention it in the `## Overview` prose (name + why it fits the vibe) so a human skimming the file sees it immediately.
-- **Markdown section order** (`##`) MUST follow: Overview → Colors → Typography → Layout → Elevation & Depth → Shapes → Components → Do's and Don'ts. Any section can be skipped if not needed, but the sections that are written must not be reordered.
-- Each section should have 2-5 sentences/bullets explaining the **why**, not just restating the token values already in the YAML — that's what separates a good DESIGN.md from a shallow one.
-- Write the file with `Write` to `docs/design/DESIGN.md` (or a different name if the user has multiple design systems in the same project, e.g. `DESIGN-dark.md`).
+1. Copy the template to `docs/design/DESIGN.md` (or another name if the project has several design systems, e.g. `DESIGN-dark.md`).
+2. Change `name` and `description`, and replace "Thoson" / "HeroUI" wording in the prose only where the user's base differs.
+3. **Rebrand the primary family** following the template's own "Changing the primary color" table: update `primary`, `focus`, `primary-foreground`, `primary-hover`, `primary-soft`, `primary-soft-foreground` in the front matter **and** the Dark theme table and the rebrand table values in the prose. Don't touch neutrals, status colors, shapes or spacing unless the user asked.
+4. Apply any font and icon choice (front matter `fontFamily`, Typography prose, Do's and Don'ts).
+5. If the user asked for deviations, edit the matching tokens, tables and prose together so front matter and body never contradict each other.
+6. New components copy the template's pattern: separate entry per variant/state, `{token}` references only, plus a line in the matching Components group.
+7. Keep the `##` section order from the spec and the template's heading names.
+
+Check contrast for every changed foreground/background pair (4.5:1) before moving on — the template's note explains why `danger`, `primary-hover` and `muted` differ from HeroUI.
 
 ## Step 3 — Lint and self-fix
 

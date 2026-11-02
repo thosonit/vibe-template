@@ -1,131 +1,57 @@
 # Structure & conventions for `design-system.html`
 
-This document describes the standard pattern derived from the 2 reference files `references/example-anthropic.html` and `references/example-mongodb.html` (a "Design System Analysis" style page created by the getdesign.md/awesome-design-md tool). Use this document as the mold when generating a new `design-system.html`, and also when adding sections/components to an existing file.
+`references/design-system-template.html` is the canonical page (the Thoson Design System, built from `design-md-builder`'s `references/design-md-template.md`). Every new `design-system.html` is a **copy of it with the brand-specific values swapped**, never a page written from scratch. This document says what is fixed, what changes per brand, and how to extend it.
 
-## ⚠️ Parts that must NOT be copied
+## 1. Fixed (keep as is)
 
-The 2 example files contain some content that is only promotional "chrome" from the tool that generated them, NOT part of the analyzed brand's design system — never copy these parts into a new file:
+**Page frame**
+- `<html data-theme="light">`, one `<style>`, one `<script>` (an IIFE at the end of `<body>`), no external framework. Only the Google Fonts `<link>` is external, and only for fonts DESIGN.md names.
+- Sticky `.topbar` (brand + dark-theme switch `#theme-switch` + menu button `.menu-btn` on small screens), then `.wrap.page` = sticky sidebar `.side` (≥1024px) + `<main>`. The sidebar and the `#nav-drawer` are filled by JS from the `sections` array.
+- A hidden SVG sprite of Lucide icons (`#i-check`, `#i-x`, `#i-down`, `#i-right`, `#i-left`, `#i-menu`, `#i-info`, `#i-ok`, `#i-warn`, `#i-err`), used as `<svg class="i"><use href="#i-..."/></svg>`.
+- Section order matches DESIGN.md's `##` order: `#overview`, `#colors`, `#typography`, `#layout`, `#elevation`, `#shapes`, `#components`, `#rules`. **No numbered section labels.** A section is `<section id aria-labelledby>` with an `h2.t-headline-md`, a `p.lede` of one or two sentences that states the rule (the same rule as the DESIGN.md prose), then specimens in `.card`s.
+- `#components` holds the groups `#actions`, `#forms`, `#content`, `#feedback`, `#overlays`, `#navigation`, `#states`, each `.group` = `h3.t-title-md` + specimens + a closing `p.lede` of usage rules.
 
-- The `getdesign.md` and `awesome-design-md` GitHub link/badge in the nav.
-- The 4-column footer promoting "VoltAgent Framework / VoltOps..." at the end of the file.
-- The `cloudflareinsights.com` beacon script.
+**Behaviour in the script (keep the element ids it reads)**
+- `#theme-switch`, `#primary-picker`, `#color-groups`, `#pairs`, `#side-nav`, `#drawer-nav`, `#nav-drawer`, `#dlg`, `#alert-dlg`, `#vol`/`#vol-out`, `#pagination`, `[data-tabs]`, `[data-open]`, `[data-close]`.
+- The dark theme is `:root[data-theme="dark"]`, which only redefines token values; components never branch on theme except the few documented spots (danger text, switch thumb, topbar shadow).
+- Live contrast: every pair in `pairs` shows its ratio for the current theme and primary and must read 4.5:1 or better.
 
-The nav and footer in a new file must carry the brand/content of the design system being described (the brand name, or a neutral blank/placeholder), not the branding of the tool that generated the file.
+## 2. DESIGN.md → page mapping (what you change)
 
-## 1. Page skeleton
+| In the page | Comes from DESIGN.md |
+|---|---|
+| `:root` color vars (`--primary`, `--surface`, ...) | `colors` front matter, same key names (`--<key>`) |
+| `:root[data-theme="dark"]` | the "Dark theme" table in the Colors prose |
+| `--space-*` | `spacing`; `--r-*` | `rounded`; `--h-sm/md/lg`, `--gutter` | Layout prose |
+| `--shadow-1`, `--shadow-2` (light and dark) | Elevation & Depth table and bullets |
+| `--font` and the Fonts `<link>` | `typography.*.fontFamily` and the Typography prose |
+| `.t-*` classes and the type-scale rows | `typography` tokens (size, weight, line height) and the "Use for" table |
+| `.btn`, `.input`, `.chip`, `.card`, `.table-root`, ... | `components` entries and the Components prose. Values come from the same tokens, no raw hex |
+| `presets` in the script | the DESIGN.md primary as the first, exact entry (light and dark values from the "Changing the primary color" table), plus 3–4 derived alternatives |
+| Color `groups`, `pairs`, "Which token for which case" table | the Colors role table |
+| Brand name, `<title>`, hero copy, sample content | the DESIGN.md `name` and `description` |
 
-Required order in the file:
+If DESIGN.md lacks a value the page needs, do not invent one: ask, or derive it from an existing token and say so in the closing message.
 
-```
-<html>
-  <head>
-    <meta charset, viewport, title>
-    <link> Google Fonts (preconnect + stylesheet) — only load the fonts DESIGN.md actually requires
-    <style> — a single CSS block, every color/font/spacing uses CSS custom properties in :root
-  </head>
-  <body>
-    <nav>            — sticky, 3 columns (brand | anchor links | CTA)
-    <div class="hero"> — 2 columns: content (h1+p+2 CTA) | art (code mockup or visual)
-    <section id="colors">      — 01, always present
-    <section id="typography">  — 02, always present
-    <section id="components">  — 03, Button Variants, always present
-    <section>...</section>     — subsequent sections, numbered onward, depending on what components DESIGN.md has
-    <section id="responsive">  — always the last section before the footer
-    <footer>
-  </body>
-</html>
-```
+## 3. Class vocabulary (reuse, don't add parallels)
 
-The file is **self-contained**: all CSS lives in a single `<style>` tag, no JS logic (unless the user explicitly requests real interactivity), no external framework dependency — because the purpose is for another AI agent to read this file and understand the design system, not to deploy it as a real website.
+- **Layout:** `.wrap`, `.page`, `.group`, `.grid` (`.cols4`, `.wide`), `.row`, `.stack` (`.tight`), `.lede`, `.card` (`.secondary`, `.tertiary`, `.transparent`, `.form`), `.scroll-x`, `.table-simple`.
+- **Type:** `.t-headline-lg|md`, `.t-title-md|sm`, `.t-body-lg|md|sm`, `.t-label-md|sm`, `.t-micro`.
+- **Controls:** `.btn` + `primary|secondary|tertiary|outline|ghost|danger|danger-soft`, sizes `sm|lg`, `.icon`, `.close`, `.link`; `.field`, `.input` (`.secondary`), `.check`, `.switch`, `.slider`, `.option-list`.
+- **Content and feedback:** `.chip` (+ status and `.soft`), `.avatar`, `.badge`, `.accordion`, `.table-root`, `.alert` (+ status), `.toast`, `.spinner`, `.skeleton`, `.progress`.
+- **Overlays and navigation:** `.popover`, `.menu`, `.tooltip`, `.dialog`, `.drawer`, `.tabs` (`.primary|.secondary`), `.crumbs`, `.pagination`, `.pg`.
+- **State demos:** `.force-hover`, `.force-press`, `.force-focus` render a state statically.
 
-## 2. DESIGN.md token → CSS variable mapping
+## 4. Adding or removing a component
 
-| DESIGN.md token | Suggested CSS variable | Note |
-|---|---|---|
-| `colors.primary` | `--primary` | Main CTA color |
-| `colors.<other name>` (secondary, tertiary, accent-*...) | `--<name>` | Keep the original token name as the variable name so an agent reading the code later maps directly back to DESIGN.md |
-| pressed/hover/active states if the component defines them | `--<name>-active` / `--<name>-hover` | |
-| Text color placed on that color's background | `--on-<name>` | e.g. `--on-primary` |
-| Main background (usually `colors.neutral` or `canvas`) | `--canvas` | |
-| Secondary background variants | `--surface`, `--surface-soft`, `--surface-card`, `--surface-dark`... | The count depends on how many surface tokens DESIGN.md defines |
-| Hairline border | `--hairline`, `--hairline-soft` | If DESIGN.md doesn't have one, derive it as a lightly muted neutral color |
-| Text hierarchy | `--ink` (main text), `--body`, `--muted`, `--muted-soft` | |
-| `typography.<name>.fontFamily` (display/heading) | `--display` | Full font stack with fallback |
-| `typography.<name>.fontFamily` (body) | `--text` | |
-| Code/mono font if present | `--mono` | If DESIGN.md doesn't declare one, default to `ui-monospace, 'JetBrains Mono', monospace` |
-| `rounded.*` | Use directly in a class (`.btn { border-radius: var(--radius-md) }`) if a variable is needed, or as a numeric literal if used only once | |
-| `spacing.*` | Used in section 10 "Spacing Scale" to illustrate visually | |
+1. Read DESIGN.md for the component's tokens. A missing token is a question to the user, not an invention.
+2. Add CSS at the end of the existing `<style>` in the matching block comment (`/* Content */`, `/* Feedback */`, ...), using only `var(--token)` values.
+3. Add the specimen to the matching `.group` in `#components` (or a new `.group` with its own id before `#states`), with the real states, a short `p.lede` rule, and an `aria-label` or visible label for every control.
+4. Wire any behaviour into the existing IIFE; never add a second `<script>` or `<style>`.
+5. If the component adds a color pair, add it to `pairs` so its contrast is measured.
+6. Components DESIGN.md does not define are removed from the page along with their CSS and script wiring, so the page never shows something DESIGN.md can't back.
 
-If DESIGN.md is missing a token (e.g. no `secondary`), do NOT invent a new token with no basis — ask the user, or derive a reasonable one from the existing palette (e.g. a lighter/darker variant of primary) and note clearly in that section's "rationale" that this is an inference, not an original token.
+## 5. Checks before finishing
 
-## 3. Section catalog
-
-### Core sections — ALWAYS present, in this exact order:
-
-| # | id/section-label | Content | Main classes |
-|---|---|---|---|
-| 01 | Color Palette | Colors grouped (Brand/Accent, Surface, Text) — each color is one `.swatch` with a color block + name + hex + role | `.palette-group`, `.palette-grid`, `.swatch`, `.swatch-color`, `.swatch-meta`, `.swatch-name`, `.swatch-hex`, `.swatch-role` |
-| 02 | Typography Scale | Each row: metadata (scale name, size/weight/line-height/letter-spacing) on the left, a real rendered example sentence on the right | `.type-row`, `.type-meta`, `.type-sample` |
-| 03 | Button Variants | Every button variant defined in DESIGN.md's `components`: primary, primary-active, primary-disabled, secondary, secondary-on-dark, text-link, icon-circular... | `.button-grid`, `.button-cell`, `.button-label`, `.btn` + variant class, `.button-meta` |
-| xx | Cards & Containers | A basic card (feature card), plus a domain-specific card if relevant (code mockup for a dev tool, testimonial for a B2B SaaS...) | `.card-grid`, `.feature-card` |
-| xx | Spacing Scale | A visual bar for each spacing step | `.spacing-row`, `.spacing-block`, `.spacing-bar`, `.spacing-label` |
-| xx | Border Radius Scale | A square illustrating each radius step | `.radius-row`, `.radius-block` |
-| xx | Elevation & Depth | Cards illustrating different elevation/background layers | `.elevation-grid`, `.elevation-card` |
-| xx (last) | Responsive Behavior | Breakpoint table + visual device ladder + notes on touch target/collapsing strategy | `.responsive-table`, `.device-ladder`, `.device-bar`, `.responsive-sub` |
-
-### Optional sections — add IF DESIGN.md defines the corresponding component, or the user specifically requests it:
-
-- **Badges & Status** — if there's a badge/pill/status token.
-- **Forms & Inputs** — if the product has forms (input, focus state).
-- **Pricing Tiers** — if it's a SaaS with pricing.
-- **Coral/Accent Callout Card** (full-bleed CTA banner) — if the brand has a prominent callout pattern.
-- **Connector/Service Tiles** — if there's a list of integrations/services as a small grid.
-- **Tabs & Navigation** — if there's tab UI.
-- **Code Mockup Card** — only add if this is a dev-facing product (API, SDK...).
-- **Testimonials / Logo Wall / FAQ Accordion** — if it's a B2B marketing page.
-
-Don't mechanically add optional sections for every brand — only add when there's justification from DESIGN.md (a defined component) or from a user request. A minimal design system (e.g. just button + card) doesn't need to be forced up to 13-17 sections like the two example files.
-
-## 4. Reusable detail patterns
-
-**Section header pattern** (applies to every section):
-```html
-<section id="...">
-  <div class="section-label">03 — Button Variants</div>
-  <h2 class="section-heading">Short title describing the style</h2>
-  <p class="section-intro">1-2 sentences explaining the RATIONALE — why this pairing was chosen, not just restating the values.</p>
-  ... content ...
-</section>
-```
-Numbering must be continuous, no skipped numbers, no duplicate numbers when adding a new section later (see item 6).
-
-**Nav pattern**:
-```html
-<nav class="nav"> <!-- display:grid; grid-template-columns:1fr auto 1fr -->
-  <div class="nav-left">...brand...</div>
-  <ul class="nav-links"><li><a href="#colors">Colors</a></li>...</ul>
-  <button class="nav-cta">...</button>
-</nav>
-```
-Anchor links in `.nav-links` must match the `id` of the main sections (at minimum: colors, typography, components, responsive).
-
-**Hero pattern**: a 2-column grid (content left, illustration right). The right-side illustration should be one of 2 forms: (a) a terminal-style code mockup if the product is dev-facing, or (b) a stylistic color/shape illustration if it's a consumer brand — decide based on the nature of the product described in DESIGN.md.
-
-**Responsive breakpoints**: use exactly the 2 breakpoints `@media (max-width: 1024px)` and `@media (max-width: 720px)`, each collapsing the grid to fewer columns, hiding non-essential decoration, reducing heading font-size.
-
-## 5. Quality requirement (frontend-design)
-
-`design-system.html` is a visual output, not just data — it must ACTUALLY look good and match the brand personality in DESIGN.md, not be a flat, generic demo. See `SKILL.md`'s Step 3 (Mode A) for the full brainstorm + self-critique process before building.
-
-**Important note**: every pattern described in this document (01/02/03 numbered sections, hairline borders, uppercase `.section-label`) is derived from 2 specific example files — they're a convenient starting point STRUCTURALLY (skeleton, class naming, breakpoints), but they are NOT a mandatory aesthetic formula. This numbering + hairline style is one of the "default looks" the `frontend-design:frontend-design` skill (called via the `Skill` tool) recommends questioning before using. When DESIGN.md describes a brand with a different personality (not editorial/broadsheet), it's fine — and often better — to change how section headers are presented (drop the numbering, change the typographic treatment, change how sections are separated) as long as the underlying data scaffold is preserved (enough tokens, enough content sections, correct CSS variable mapping per item 2).
-
-## 6. Rules for ADDING a component/section to an existing file
-
-When the user asks to add a new component or UI to an existing `design-system.html`:
-
-1. Re-read the relevant DESIGN.md (if the new component needs a token not yet in DESIGN.md — e.g. adding a new color — ask the user whether to update DESIGN.md first, or derive it from an existing token; never invent a color outside the palette).
-2. Read the existing `design-system.html` to get exactly: the CSS variable names currently used (`:root`), current class conventions, the last section number.
-3. Insert the new section BEFORE the "Responsive Behavior" section (responsive is always last), numbered as the current last number + 1.
-4. Add the new component's style to the end of the existing `<style>` block (don't create a 2nd `<style>` block), reusing the existing `:root` CSS variables — don't redefine colors with raw hex.
-5. If the new section is important enough to need quick access, add an entry to `.nav-links` pointing to the new `id` — but this isn't required for every small component.
-6. After inserting, review everything to make sure it doesn't break the existing responsive breakpoints (the new section needs to inherit the correct grid/gap pattern from sections of the same type).
+- Open the file in a browser (or `Read` it) and confirm: both themes render, the primary picker recolors every component, every contrast pair shows "passes AA", the sidebar highlights the section in view, dialogs/drawer/tabs/slider/pagination work, and at 320, 768 and 1280px nothing overflows horizontally.
+- No leftover template content: brand name, "Atlas"/"Thoson"/HeroUI wording, sample people and copy are replaced or deliberately kept as neutral sample content.
